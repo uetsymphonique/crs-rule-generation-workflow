@@ -328,6 +328,19 @@ SecRule TX:DETECTION_PARANOIA_LEVEL "@lt 2" \
 
 Each rule must carry `tag:'paranoia-level/N'` (unless using `nolog`).
 
+### Severity and Score Allowed per Paranoia Level
+
+When assigning severity to a new rule, follow the PL-based constraints from the CRS contribution guidelines:
+
+| PL | Confirmed attack severity | FP-risk matches (severity limit) | Notes |
+|---|---|---|---|
+| **1** | `CRITICAL` | Not applicable (no FP-risk rules at PL1) | Atomic rules only; lowest FP tolerance |
+| **2** | `CRITICAL` | `WARNING` or `NOTICE` | Chain rules allowed |
+| **3** | `WARNING` or `CRITICAL` | `NOTICE` | Complex chains; moderate FP tolerance |
+| **4** | `NOTICE`, `WARNING`, or `CRITICAL` | `NOTICE` or `WARNING` | Maximum coverage; all scores allowed |
+
+> **Rule of thumb**: The higher the FP risk of a rule, the lower the severity it should use and the higher PL it belongs to.
+
 ---
 
 ## 10. Rule ID Assignment
@@ -344,7 +357,10 @@ Within each vulnerability group (e.g., 942xxx for SQLi):
 
 **Rules are always added at the end of their group.** Never insert between existing IDs.
 
+> For the full breakdown of file-to-ID mapping, skip-gate reserved IDs, stricter sibling conventions, and step-by-step guidance for new rules, see `rule-id-scheme.md`.
+
 ---
+
 
 ## 11. Metadata and Tags
 
@@ -368,17 +384,29 @@ ver:'OWASP_CRS/4.25.0-dev'    # rule set version string
 
 Chain rules implement **logical AND**: all chained rules must match for the disruptive action to fire.
 
+**Indentation convention** (required by CRS contribution guidelines):
+
 ```apache
-SecRule ARGS "@rx (?i)\b(\w+)\b.*?=.*?\b(\w+)\b" \
+SecRule ARGS "@rx pattern_a" \
     "id:942130,phase:2,block,capture,\
     t:none,t:urlDecodeUni,\
     msg:'SQL Boolean-based attack detected',\
     tag:'paranoia-level/2',\
     setvar:'tx.match=%{matched_var_name}',\
     chain"
-    SecRule TX:1 "@streq %{TX.2}" \      ← AND: only block if TX:1 equals TX:2
+    SecRule TX:1 "@streq %{TX.2}" \
         "t:none,\
         setvar:'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"
+```
+
+- Each chained `SecRule` is **indented by 4 spaces** relative to its parent.
+- Comments must **not** appear between chained rules — place them before the chain starter.
+- A multi-level chain (A AND B AND C) follows the same nesting pattern:
+
+```apache
+SecRule VAR_A "@rx pattern_a" "id:100,phase:2,block,chain"
+    SecRule VAR_B "@rx pattern_b" "chain"
+        SecRule VAR_C "@rx pattern_c" "setvar:'tx.score=+5'"
 ```
 
 **Rules for chains:**

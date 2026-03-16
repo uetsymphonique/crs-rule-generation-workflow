@@ -1,5 +1,5 @@
 [submodule "doc_modules/coreruleset"]
-	path = doc_modules/coreruleset
+	path = coreruleset
 	url = https://github.com/uetsymphonique/coreruleset.git
 [submodule "doc_modules/ModSecurity.wiki"]
 	path = doc_modules/ModSecurity.wiki
@@ -7,3 +7,6 @@
 [submodule "doc_modules/crs-documentation"]
 	path = doc_modules/crs-documentation
 	url = https://github.com/coreruleset/documentation.git
+[submodule "doc_modules/nuclei-docs"]
+	path = doc_modules/nuclei-docs
+	url = https://github.com/projectdiscovery/nuclei-docs.git

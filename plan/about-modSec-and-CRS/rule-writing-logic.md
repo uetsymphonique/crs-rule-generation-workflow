@@ -105,7 +105,10 @@ What data do I need to inspect?
 │   └── File name only → REQUEST_BASENAME
 │
 ├── Request body (raw)?
-│   └── REQUEST_BODY  (only when Content-Type: application/x-www-form-urlencoded)
+│   └── REQUEST_BODY  (available for any Content-Type when SecRequestBodyAccess On;
+│                      parsed Content-Types like urlencoded/multipart/JSON/XML also
+│                      populate their own collections — ARGS_POST, FILES, XML:/*;
+│                      use REQUEST_BODY for raw access or unsupported content types)
 │
 ├── Uploaded files?
 │   ├── File names → FILES
@@ -262,10 +265,14 @@ SecRule ARGS "@rx (\w+)\s*=\s*(\w+)" \
     t:none,t:urlDecodeUni,\
     msg:'SQL Tautology detected',\
     chain"
-    SecRule TX:1 "@streq %{TX.2}" \   ← AND: only if group 1 == group 2
+    SecRule TX:1 "@streq %{TX.2}" \
         "t:none,\
         setvar:'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"
 ```
+
+**Indentation convention** (required by CRS contribution guidelines):
+- Each chained `SecRule` is **indented by 4 spaces** relative to the previous `SecRule`.
+- Comments must **not** appear between chained rules — place them **before the chain starter**.
 
 **Chain rules:**
 - Disruptive action, `id`, `phase`, `msg`, `tag`, `skip`, `skipAfter` → **first rule only**
@@ -277,7 +284,8 @@ SecRule ARGS "@rx (\w+)\s*=\s*(\w+)" \
 ```apache
 SecRule VAR_A "@rx pattern_a" "id:100,phase:2,block,chain"
     SecRule VAR_B "@rx pattern_b" "chain"
-        SecRule VAR_C "@rx pattern_c" "setvar:tx.score=+5"
+        SecRule VAR_C "@rx pattern_c" "setvar:'tx.score=+5'"
+
 ```
 
 ---
