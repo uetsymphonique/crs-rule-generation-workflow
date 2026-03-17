@@ -1,4 +1,4 @@
-﻿# Actions
+# Actions
 Each action belongs to one of five groups:
 - **Disruptive actions** - Cause ModSecurity to do something. In many cases something means block transaction, but not in all. For example, the allow action is classified as a disruptive action, but it does the opposite of blocking. There can only be one disruptive action per rule (if there are multiple disruptive actions present, or inherited, only the last one will take effect), or rule chain (in a chain, a disruptive action can only appear in the first rule).
 > **Note:** **Disruptive actions will NOT be executed if the SecRuleEngine is set to DetectionOnly**.  If you are creating exception/whitelisting rules that use the allow action, you should also add the ctl:ruleEngine=On action to execute the action.
@@ -49,7 +49,6 @@ If you want to allow a response through, put a rule in phase RESPONSE_HEADERS an
 # Allow response through.
 SecAction phase:3,allow,id:98
 ```
-
 
 ## auditlog
 **Description:** Marks the transaction for logging in the audit log.
@@ -173,7 +172,7 @@ With the exception of the requestBodyProcessor, each configuration option corres
 
 The requestBodyProcessor option allows you to configure the request body processor. By default, ModSecurity will use the URLENCODED and MULTIPART processors to process an application/x-www-form-urlencoded and a multipart/form-data body, respectively. Other two processors are also supported: JSON and XML, but they are never used implicitly. Instead, you must tell ModSecurity to use it by placing a few rules in the REQUEST_HEADERS processing phase. After the request body is processed as XML, you will be able to use the XML-related features to inspect it.
 
-Request body processors will not interrupt a transaction if an error occurs during parsing. Instead, they will set the variables REQBODY_PROCESSOR_ERROR and REQBODY_PROCESSOR_ERROR_MSG. These variables should be inspected in the REQUEST_BODY phase and an appropriate action taken.
+Request body processors will not interrupt a transaction if an error occurs during parsing. The manual text in this section refers to `REQBODY_PROCESSOR_ERROR` and `REQBODY_PROCESSOR_ERROR_MSG`, while the variables reference documents `REQBODY_ERROR` and `REQBODY_ERROR_MSG`. Treat this as a manual inconsistency and verify the exact variable names against the variables reference and your deployed version.
 
 ## deny
 **Description:** Stops rule processing and intercepts transaction.
@@ -182,7 +181,6 @@ Request body processors will not interrupt a transaction if an error occurs duri
 
 Example:
 `SecRule REQUEST_HEADERS:User-Agent "nikto" "log,deny,id:107,msg:'Nikto Scanners Identified'"`
-
 
 ## drop
 **Description:** Unlike in v2, in ModSecurity v3 this action currently functions the same as the deny action.
@@ -377,7 +375,6 @@ SecAction "phase:2,nolog,pass,setvar:TX.test=0,id:123"
 # Increment TX.test for every request parameter 
 SecRule ARGS "test" "phase:2,log,pass,setvar:TX.test=+1,id:124"
 ```
-
 
 ## phase
 **Description**: Places the rule or chain into one of five available processing phases. It can also be used in SecDefaultAction to establish the rule defaults for that phase.

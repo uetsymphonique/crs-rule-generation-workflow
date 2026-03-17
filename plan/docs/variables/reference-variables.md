@@ -1,4 +1,4 @@
-﻿# Variables
+# Variables
 The following variables are supported in ModSecurity 3.x:
 
 ## ARGS
@@ -238,6 +238,8 @@ FE %{MULTIPART_FILE_LIMIT_EXCEEDED}'"
 ```
 The multipart/form-data parser actively looks for certain signs of evasion. Many variables (as listed above) expose various facts discovered during the parsing process. The MULTIPART_STRICT_ERROR variable is handy to check on all abnormalities at once. The individual variables allow detection to be fine-tuned according to your circumstances in order to reduce the number of false positives.
 
+> **Note:** This section follows the manual text, which refers to `REQBODY_PROCESSOR_ERROR`. The same manual also documents `REQBODY_ERROR` and `REQBODY_ERROR_MSG` as the primary request-body error variables elsewhere.
+
 ## MULTIPART_UNMATCHED_BOUNDARY
 The intention of this variable is to identify possible evasion attempts by identifying lines that begin with '--' but are followed by characters such that it is not a match to the boundary. Even in its original implementation (in ModSecurity v2) this detection was known to be prone to false positives. A change made in ModSecurity v3 resulted in two detection variations, one that was still prone to false positives, and a revised detection that will detect very little. The ongoing utility and suitability of this detection is subject to review.
 
@@ -327,6 +329,8 @@ Contains the status of the request body processor used for request body parsing.
 
 > **Note:** Your policies must have a rule to check for request body processor errors at the very beginning of phase 2. Failure to do so will leave the door open for impedance mismatch attacks. It is possible, for example, that a payload that cannot be parsed by ModSecurity can be successfully parsed by more tolerant parser operating in the application. If your policy dictates blocking, then you should reject the request if error is detected. When operating in detection-only mode, your rule should alert with high severity when request body processing fails.
 
+> **Note:** The manual is not fully consistent here: some sections use `REQBODY_PROCESSOR_ERROR` / `REQBODY_PROCESSOR_ERROR_MSG`, while this variables section documents `REQBODY_ERROR` / `REQBODY_ERROR_MSG`.
+
 ## REQBODY_ERROR_MSG
 If there has been an error during request body parsing that resulted in REQBODY_ERROR getting set to 1, this variable will contain a text message containing additional information about the error that was encountered. The variable can be tested just as any other variable can:
 
@@ -355,6 +359,8 @@ Holds the raw request body. This variable is available only if the URLENCODED re
 `SecRule REQUEST_BODY "^username=\w{25,}\&password=\w{25,}\&Submit\=login$" "id:43"`
 
 As of 2.5.7, it is possible to force the presence of the REQUEST_BODY variable, but only when there is no request body processor defined using the ctl:forceRequestBodyVariable option in the REQUEST_HEADERS phase.
+
+> **Note:** The ModSecurity v3 manual is inconsistent around `REQUEST_BODY` availability: this variable entry limits it to the URLENCODED processor, while the `ctl:forceRequestBodyVariable` note elsewhere says that option is not implemented in v3 because `REQUEST_BODY` is always populated.
 
 ## REQUEST_BODY_LENGTH
 Contains the number of bytes read from a request body.

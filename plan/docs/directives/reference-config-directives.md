@@ -1,4 +1,4 @@
-﻿# Configuration Directives
+# Configuration Directives
 The following section outlines all of the ModSecurity directives. Most of the ModSecurity directives can be used inside the various Apache Scope Directives such as VirtualHost, Location, LocationMatch, Directory, etc... There are others, however, that can only be used once in the main configuration file. This information is specified in the Scope sections below. The first version to use a given directive is given in the Version sections below.
 
 These rules, along with the Core rules files, should be contained in files outside of the httpd.conf file and called up with Apache "Include" directives. This allows for easier updating/migration of the rules. If you create your own custom rules that you would like to use with the Core rules, you should create a file called - modsecurity_crs_15_customrules.conf and place it in the same directory as the Core rules files. By using this file name, your custom rules will be called up after the standard ModSecurity Core rules configuration file but before the other Core rules. This allows your rules to be evaluated first which can be useful if you need to implement specific "allow" rules or to correct any false positives in the Core rules as they are applied to your site.
@@ -43,7 +43,7 @@ SecRule &ARGS "@ge 1000" "id:'200007', phase:2,t:none,log,deny,status:400,msg: .
 ```
 Without such a matching rule, an attacker could potentially evade detection by placing the attack payload in a parameter occurring beyond the limit.
 
-> **Note:** Audit logging directives (SecAuditEngine, SecAuditLog, SecAuditLogParts, etc.) and debug logging directives (SecDebugLog, SecDebugLogLevel, SecComponentSignature) have been moved to non-rule-directives.md as they do not participate in rule evaluation.
+> **Project note:** In this project, audit logging directives (SecAuditEngine, SecAuditLog, SecAuditLogParts, etc.) and debug logging directives (SecDebugLog, SecDebugLogLevel, SecComponentSignature) are documented separately in `non-rule-directives.md` because they do not participate in rule evaluation.
 
 ## SecDefaultAction
 **Description**: Defines the default list of actions for a particular phase, which will be inherited by the rules in the same phase and in the same configuration context.
@@ -312,6 +312,8 @@ The possible values are:
 - **On**: process rules
 - **Off**: do not process rules 
 - **DetectionOnly**: process rules but never executes any disruptive actions (block, deny, drop, allow, proxy and redirect)
+
+> **Note:** The manual text here still lists `proxy`, but the actions reference marks `proxy` as not supported in ModSecurity v3.
 
 ## SecRuleRemoveById
 **Description:** Removes the matching rules from the current configuration context. 
@@ -626,6 +628,8 @@ Possible values are:
 
 - **On** - Keep uploaded files.
 - **Off** - Do not keep uploaded files.
+
+> **Note:** The syntax above documents `On|Off`. Some older manual text still mentions `RelevantOnly`; treat that as a documentation inconsistency rather than a valid value for `SecUploadKeepFiles`.
 
 ## SecWebAppId
 **Description:** Creates an application namespace, allowing for separate persistent session and user storage.

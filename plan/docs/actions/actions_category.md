@@ -28,7 +28,6 @@ Affect how the transaction is processed. Only one disruptive action per rule (or
 | `allow` | Stops rule processing and allows the transaction to proceed. Supports `allow:phase` (stop current phase only) and `allow:request` (skip to response phase) |
 | `redirect:URL` | Intercepts by redirecting the client to the specified URL (302 by default; use with `status:301/303/307` to change) |
 | `pass` | Continues rule processing despite a match — no blocking, but non-disruptive actions still execute |
-| `exec:/path/script.lua` | Executes an external Lua script on match, independently from the disruptive action |
 
 ---
 
@@ -54,7 +53,7 @@ Annotate a rule with descriptive information. Can only be used in the chain star
 | `phase:N` | Places the rule in processing phase 1–5. Use numeric values: `phase:1`, `phase:2`, etc. Aliases `request`, `response`, `logging` exist but are discouraged |
 | `msg:'text'` | Human-readable alert message logged with every match. Supports macro expansion |
 | `tag:'value'` | Classification tag for automated categorization. Multiple tags allowed. Supports macro expansion |
-| `severity:LEVEL` | Severity level: `CRITICAL`, `ERROR`, `WARNING`, `NOTICE`, `INFO`, `DEBUG` (use text, not numeric syslog values) |
+| `severity:LEVEL` | Severity level: `EMERGENCY`, `ALERT`, `CRITICAL`, `ERROR`, `WARNING`, `NOTICE`, `INFO`, `DEBUG` (use text, not numeric syslog values) |
 | `rev:'N'` | Rule revision. Used with `id` to track changes |
 | `ver:'CRS/4.0.0'` | Rule set version string |
 | `accuracy:'N'` | Relative accuracy on false positive/negative scale 1–9 (9 = very accurate) |
@@ -102,6 +101,7 @@ Execute side-effects but do not interrupt rule processing flow. Can appear in an
 | `t:transformName` | Adds a named transformation to the pipeline (e.g., `t:urlDecodeUni`, `t:lowercase`) |
 | `multiMatch` | Runs the operator multiple times: once before transforms and once after each transform that changes the input. Prevents evasion via intermediate transform states |
 | `ctl:option=value` | Modifies engine configuration for the current transaction only. See supported v3 options below |
+| `exec:/path/script.lua` | Executes an external Lua script on match. In v3 this is a **non-disruptive** action and runs independently from the disruptive action |
 
 ### `ctl` sub-options (v3 supported)
 
@@ -156,12 +156,15 @@ Common macros:
 
 ---
 
-## Recommended Action Order (CRS Convention)
+## Recommended Action Order (Reference / CRS Convention)
 
 ```
-id → phase → allow|block|deny|drop|pass|redirect → status → capture
-→ t:none → t:... → log/nolog → auditlog/noauditlog
-→ msg → logdata → tag → ctl → ver → severity
-→ multiMatch → initcol → setenv → setvar → expirevar
+id → phase → allow|block|deny|drop|pass|proxy|redirect → status → capture
+→ t:none / t:... → log → nolog → auditlog → noauditlog
+→ msg → logdata → tag
+→ sanitiseArg → sanitiseRequestHeader → sanitiseMatched → sanitiseMatchedBytes
+→ ctl → ver → severity → multiMatch → initcol → setenv → setvar → expirevar
 → chain → skip → skipAfter
 ```
+
+> `proxy` and the `sanitise*` actions appear here to preserve the documented reference order. They are not supported in ModSecurity v3; see `not-supported-actions.md`.

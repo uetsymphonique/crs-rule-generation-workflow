@@ -48,13 +48,13 @@ Compare numeric values. Non-numeric inputs are treated as `0`. Macro expansion s
 | Name | Description |
 |---|---|
 | `@eq N` | True if input equals N |
-| `@ne N` | True if input does not equal N |
 | `@gt N` | True if input is greater than N |
 | `@ge N` | True if input is greater than or equal to N |
 | `@lt N` | True if input is less than N |
 | `@le N` | True if input is less than or equal to N |
 
 > **Tip:** Use `&COLLECTION` to count members before comparing, e.g., `&REQUEST_HEADERS "@gt 20"`.
+> **Tip:** When you need "not equal", prefer negation of a documented operator, e.g. `!@eq 0`.
 
 ---
 

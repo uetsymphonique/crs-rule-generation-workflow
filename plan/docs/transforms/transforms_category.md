@@ -135,12 +135,12 @@ Transformation functions normalize input data before operator matching. See `ref
 
 ---
 
-## Recommended Decode Pipeline (CRS convention)
+## Reference Example: Counter-Evasion Transform Order
 
-For maximum evasion coverage, apply decodes in this order:
+The reference emphasizes that transformations are applied in the order they are listed. One documented example is:
 
+```apache
+SecRule ARGS "@rx attack" "phase:2,id:1,t:none,t:htmlEntityDecode,t:lowercase,t:removeNulls,t:removeWhitespace"
 ```
-t:none, t:utf8toUnicode, t:urlDecodeUni, t:htmlEntityDecode, t:jsDecode, t:cssDecode, t:removeNulls
-```
 
-Not every rule needs all stages — use only what is appropriate for the variable and attack type.
+Use `t:none` first when you want to clear inherited transforms, then add only the transforms the rule actually needs.

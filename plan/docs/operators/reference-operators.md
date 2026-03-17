@@ -1,4 +1,4 @@
-﻿# Operators
+# Operators
 This section documents the operators currently available in ModSecurity.
 
 ## beginsWith
@@ -411,6 +411,8 @@ SecRule REQUEST_HEADERS:Content-Type ^text/xml$ "phase:1,id:190,nolog,pass,t:low
 # Validate XML payload against DTD 
 SecRule XML "@validateSchema /path/to/xml.xsd" "phase:2,id:191,deny,msg:'Failed DTD validation'"
 ```
+
+> **Note:** The operator and parameter here are for XML Schema validation. The example comment and message still say `DTD`, which appears to be inherited wording from the source manual.
 
 **NOTE:** You must enable the `SecXmlExternalEntity` directive.
 
