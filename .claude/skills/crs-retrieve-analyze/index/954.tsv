@@ -1,0 +1,7 @@
+# source: RESPONSE-954-DATA-LEAKAGES-IIS.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+954100	RESPONSE-954-DATA-LEAKAGES-IIS.conf	34	4	1	RESPONSE_BODY	@rx	none	0	ERROR	application-multi language-multi platform-iis platform-windows attack-disclosure	Disclosure of IIS install location
+954110	RESPONSE-954-DATA-LEAKAGES-IIS.conf	55	4	1	RESPONSE_BODY	@rx	none	0	ERROR	application-multi language-multi platform-iis platform-windows attack-disclosure	Application Availability Error
+954120	RESPONSE-954-DATA-LEAKAGES-IIS.conf	79	4	1	RESPONSE_BODY	@pmFromFile:iis-errors.data	none	0	ERROR	application-multi language-multi platform-iis platform-windows attack-disclosure	IIS Information Leakage
+954130	RESPONSE-954-DATA-LEAKAGES-IIS.conf	101	4	1	RESPONSE_STATUS	!@rx	none	1	ERROR	application-multi language-multi platform-iis platform-windows attack-disclosure	IIS Information Leakage
+954101	RESPONSE-954-DATA-LEAKAGES-IIS.conf	137	4	2	RESPONSE_BODY	@rx	none	0	ERROR	application-multi language-multi platform-iis platform-windows attack-disclosure	Disclosure of IIS install location

@@ -1,0 +1,7 @@
+# source: REQUEST-931-APPLICATION-ATTACK-RFI.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+931100	REQUEST-931-APPLICATION-ATTACK-RFI.conf	42	2	1	ARGS|XML:/*	@rx	none,urlDecodeUni	0	CRITICAL	application-multi language-multi platform-multi attack-rfi	Possible Remote File Inclusion (RFI) Attack: URL Parameter using IP Address
+931110	REQUEST-931-APPLICATION-ATTACK-RFI.conf	63	2	1	QUERY_STRING|REQUEST_BODY	@rx	none,urlDecodeUni	0	CRITICAL	application-multi language-multi platform-multi attack-rfi	Possible Remote File Inclusion (RFI) Attack: Common RFI Vulnerable Parameter Name used w/URL Payload
+931120	REQUEST-931-APPLICATION-ATTACK-RFI.conf	84	2	1	ARGS	@rx	none	0	CRITICAL	application-multi language-multi platform-multi attack-rfi	Possible Remote File Inclusion (RFI) Attack: URL Payload Used w/Trailing Question Mark Character (?)
+931130	REQUEST-931-APPLICATION-ATTACK-RFI.conf	124	2	2	ARGS	@rx	none	1	CRITICAL	application-multi language-multi platform-multi attack-rfi	Possible Remote File Inclusion (RFI) Attack: Off-Domain Reference/Link
+931131	REQUEST-931-APPLICATION-ATTACK-RFI.conf	155	1	2	REQUEST_FILENAME	@rx	none,urlDecodeUni	0	CRITICAL	application-multi language-multi platform-multi attack-rfi	Possible Remote File Inclusion (RFI) Attack

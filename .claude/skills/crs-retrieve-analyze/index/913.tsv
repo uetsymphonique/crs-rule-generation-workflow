@@ -1,0 +1,3 @@
+# source: REQUEST-913-SCANNER-DETECTION.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+913100	REQUEST-913-SCANNER-DETECTION.conf	38	1	1	REQUEST_HEADERS:User-Agent	@pmFromFile:scanners-user-agents.data	none	0	CRITICAL	application-multi language-multi platform-multi attack-reputation-scanner	Found User-Agent associated with security scanner

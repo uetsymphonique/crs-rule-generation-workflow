@@ -1,0 +1,4 @@
+# source: REQUEST-949-BLOCKING-EVALUATION.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+949111	REQUEST-949-BLOCKING-EVALUATION.conf	212	1	1	TX:BLOCKING_INBOUND_ANOMALY_SCORE	@ge	none	1			Inbound Anomaly Score Exceeded in phase 1 (Total Score: %{TX.BLOCKING_INBOUND_ANOMALY_SCORE})
+949110	REQUEST-949-BLOCKING-EVALUATION.conf	225	2	1	TX:BLOCKING_INBOUND_ANOMALY_SCORE	@ge	none	0			Inbound Anomaly Score Exceeded (Total Score: %{TX.BLOCKING_INBOUND_ANOMALY_SCORE})

@@ -1,0 +1,4 @@
+# source: RESPONSE-959-BLOCKING-EVALUATION.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+959101	RESPONSE-959-BLOCKING-EVALUATION.conf	222	3	1	TX:BLOCKING_OUTBOUND_ANOMALY_SCORE	@ge	none	1			Outbound Anomaly Score Exceeded in phase 3 (Total Score: %{tx.blocking_outbound_anomaly_score})
+959100	RESPONSE-959-BLOCKING-EVALUATION.conf	235	4	1	TX:BLOCKING_OUTBOUND_ANOMALY_SCORE	@ge	none	0			Outbound Anomaly Score Exceeded (Total Score: %{tx.blocking_outbound_anomaly_score})

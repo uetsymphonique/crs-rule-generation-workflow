@@ -1,0 +1,7 @@
+# source: REQUEST-901-INITIALIZATION.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+901001	REQUEST-901-INITIALIZATION.conf	54	1	1	&TX:crs_setup_version	@eq		0	CRITICAL		CRS is deployed without configuration! Please copy the crs-setup.conf.example template to crs-setup.conf, and include the crs-setup.conf file in your webserver configuration before including the CRS rules. See the INSTALL file in the CRS directory for detailed instructions
+901340	REQUEST-901-INITIALIZATION.conf	375	1	1	REQBODY_PROCESSOR	!@rx		0			Enabling body inspection
+901350	REQUEST-901-INITIALIZATION.conf	387	1	1	TX:enforce_bodyproc_urlencoded	@eq	none,urlDecodeUni	1			Enabling forced body inspection for ASCII content
+901450	REQUEST-901-INITIALIZATION.conf	463	1	1	TX:sampling_rnd100	!@lt		0			Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}
+901500	REQUEST-901-INITIALIZATION.conf	482	1	1	TX:detection_paranoia_level	@lt	none	0			Detection paranoia level configured is lower than the paranoia level itself. This is illegal. Blocking request. Aborting

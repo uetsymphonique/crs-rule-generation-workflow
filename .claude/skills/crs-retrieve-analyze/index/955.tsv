@@ -1,0 +1,29 @@
+# source: RESPONSE-955-WEB-SHELLS.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+955100	RESPONSE-955-WEB-SHELLS.conf	34	4	1	RESPONSE_BODY	@pmFromFile:web-shells-php.data	none	0	CRITICAL	language-php platform-multi attack-rce	PHP Web shell detected
+955110	RESPONSE-955-WEB-SHELLS.conf	54	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	r57 web shell
+955120	RESPONSE-955-WEB-SHELLS.conf	74	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	WSO web shell
+955130	RESPONSE-955-WEB-SHELLS.conf	94	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	b4tm4n web shell
+955140	RESPONSE-955-WEB-SHELLS.conf	114	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	Mini Shell web shell
+955150	RESPONSE-955-WEB-SHELLS.conf	134	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	Ashiyane web shell
+955160	RESPONSE-955-WEB-SHELLS.conf	154	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	Symlink_Sa web shell
+955170	RESPONSE-955-WEB-SHELLS.conf	174	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	CasuS web shell
+955180	RESPONSE-955-WEB-SHELLS.conf	194	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	GRP WebShell
+955190	RESPONSE-955-WEB-SHELLS.conf	214	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	NGHshell web shell
+955200	RESPONSE-955-WEB-SHELLS.conf	234	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	SimAttacker web shell
+955210	RESPONSE-955-WEB-SHELLS.conf	254	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	Unknown web shell
+955220	RESPONSE-955-WEB-SHELLS.conf	274	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	lama\
+955230	RESPONSE-955-WEB-SHELLS.conf	294	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	lostDC web shell
+955240	RESPONSE-955-WEB-SHELLS.conf	314	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	Unknown web shell
+955250	RESPONSE-955-WEB-SHELLS.conf	334	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	Unknown web shell
+955260	RESPONSE-955-WEB-SHELLS.conf	356	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	Ru24PostWebShell web shell
+955270	RESPONSE-955-WEB-SHELLS.conf	376	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	s72 Shell web shell
+955280	RESPONSE-955-WEB-SHELLS.conf	396	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	PhpSpy web shell
+955290	RESPONSE-955-WEB-SHELLS.conf	416	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	g00nshell web shell
+955300	RESPONSE-955-WEB-SHELLS.conf	438	4	1	RESPONSE_BODY	@contains	none,removeWhitespace,lowercase	0	CRITICAL	language-php platform-multi attack-rce	PuNkHoLic shell web shell
+955310	RESPONSE-955-WEB-SHELLS.conf	458	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	azrail web shell
+955320	RESPONSE-955-WEB-SHELLS.conf	478	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	SmEvK_PaThAn Shell web shell
+955330	RESPONSE-955-WEB-SHELLS.conf	498	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	Shell I web shell
+955340	RESPONSE-955-WEB-SHELLS.conf	518	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	language-php platform-multi attack-rce	b374k m1n1 web shell
+955400	RESPONSE-955-WEB-SHELLS.conf	538	4	1	RESPONSE_BODY	@pmFromFile:web-shells-asp.data	none	0	CRITICAL	language-php platform-multi attack-rce	ASP Web shell detected
+955350	RESPONSE-955-WEB-SHELLS.conf	567	4	2	RESPONSE_BODY	@contains	none	0	CRITICAL	language-php platform-multi attack-rce	webadmin.php file manager

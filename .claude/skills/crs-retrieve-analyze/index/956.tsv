@@ -1,0 +1,4 @@
+# source: RESPONSE-956-DATA-LEAKAGES-RUBY.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+956100	RESPONSE-956-DATA-LEAKAGES-RUBY.conf	35	4	1	RESPONSE_BODY	@pmFromFile:ruby-errors.data	none	0	ERROR	application-multi language-ruby platform-multi attack-disclosure	RUBY Information Leakage
+956110	RESPONSE-956-DATA-LEAKAGES-RUBY.conf	66	4	2	RESPONSE_BODY	@rx	none	0	ERROR	application-multi language-ruby platform-multi attack-disclosure	Ruby source code leakage

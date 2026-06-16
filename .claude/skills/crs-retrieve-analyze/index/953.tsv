@@ -1,0 +1,6 @@
+# source: RESPONSE-953-DATA-LEAKAGES-PHP.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+953100	RESPONSE-953-DATA-LEAKAGES-PHP.conf	35	4	1	RESPONSE_BODY	@pmFromFile:php-errors.data	none	0	ERROR	application-multi language-php platform-multi attack-disclosure	PHP Information Leakage
+953110	RESPONSE-953-DATA-LEAKAGES-PHP.conf	60	4	1	RESPONSE_BODY	@rx	none	0	ERROR	application-multi language-php platform-multi attack-disclosure	PHP source code leakage
+953120	RESPONSE-953-DATA-LEAKAGES-PHP.conf	86	4	1	RESPONSE_BODY	@rx	none	0	ERROR	application-multi language-php platform-multi attack-disclosure	PHP source code leakage
+953101	RESPONSE-953-DATA-LEAKAGES-PHP.conf	120	4	2	RESPONSE_BODY	@rx	none	0	ERROR	application-multi language-php platform-multi attack-disclosure	PHP Information Leakage

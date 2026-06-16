@@ -13,3 +13,6 @@
 [submodule "nuclei-templates"]
 	path = nuclei-templates
 	url = https://github.com/projectdiscovery/nuclei-templates.git
+[submodule "coraza"]
+	path = coraza
+	url = https://github.com/corazawaf/coraza

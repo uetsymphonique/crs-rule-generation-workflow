@@ -1,0 +1,6 @@
+# source: REQUEST-922-MULTIPART-ATTACK.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+922100	REQUEST-922-MULTIPART-ATTACK.conf	27	2	1	&MULTIPART_PART_HEADERS:_charset_	!@eq	none	1	CRITICAL	application-multi language-multi platform-multi attack-multipart-header	Multipart content type global _charset_ definition is not allowed by policy
+922110	REQUEST-922-MULTIPART-ATTACK.conf	91	2	1	TX:/MULTIPART_HEADERS_CONTENT_TYPES_*/	!@rx	none,lowercase	0	CRITICAL	application-multi language-multi platform-multi attack-multipart-header attack-protocol	Illegal MIME Multipart Header content-type: charset parameter
+922120	REQUEST-922-MULTIPART-ATTACK.conf	114	2	1	MULTIPART_PART_HEADERS	@rx	none,lowercase	0	CRITICAL	application-multi language-multi platform-multi attack-multipart-header attack-deprecated-header	Content-Transfer-Encoding was deprecated by rfc7578 in 2015 and should not be used
+922130	REQUEST-922-MULTIPART-ATTACK.conf	139	2	1	MULTIPART_PART_HEADERS	@rx	none,lowercase	0	CRITICAL	application-multi language-multi platform-multi attack-multipart-header	Multipart header contains characters outside of valid range

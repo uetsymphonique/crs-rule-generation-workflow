@@ -1,0 +1,19 @@
+# source: REQUEST-921-PROTOCOL-ATTACK.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+921110	REQUEST-921-PROTOCOL-ATTACK.conf	39	2	1	ARGS_NAMES|ARGS|REQUEST_BODY|XML:/*	@rx	none,htmlEntityDecode,lowercase	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Request Smuggling Attack
+921120	REQUEST-921-PROTOCOL-ATTACK.conf	77	2	1	REQUEST_COOKIES|REQUEST_COOKIES_NAMES|ARGS_NAMES|ARGS|XML:/*	@rx	none,lowercase	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Response Splitting Attack
+921130	REQUEST-921-PROTOCOL-ATTACK.conf	99	2	1	REQUEST_COOKIES|REQUEST_COOKIES_NAMES|ARGS_NAMES|ARGS|XML:/*	@rx	none,htmlEntityDecode,lowercase	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Response Splitting Attack
+921140	REQUEST-921-PROTOCOL-ATTACK.conf	134	1	1	REQUEST_HEADERS_NAMES|REQUEST_HEADERS	@rx	none,urlDecodeUni	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Header Injection Attack via headers
+921150	REQUEST-921-PROTOCOL-ATTACK.conf	163	2	1	ARGS_NAMES	@rx	none	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Header Injection Attack via payload (CR/LF detected)
+921160	REQUEST-921-PROTOCOL-ATTACK.conf	190	1	1	ARGS_GET_NAMES|ARGS_GET	@rx	none,lowercase	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Header Injection Attack via payload (CR/LF and header-name detected)
+921190	REQUEST-921-PROTOCOL-ATTACK.conf	218	1	1	REQUEST_FILENAME	@rx	none,urlDecodeUni	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Splitting (CR/LF in request filename detected)
+921200	REQUEST-921-PROTOCOL-ATTACK.conf	253	2	1	REQUEST_COOKIES|REQUEST_COOKIES_NAMES|ARGS_NAMES|ARGS|XML:/*	@rx	none,htmlEntityDecode	0	CRITICAL	application-multi language-ldap platform-multi	LDAP Injection Attack
+921421	REQUEST-921-PROTOCOL-ATTACK.conf	285	1	1	REQUEST_HEADERS:Content-Type	@rx	none,lowercase	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	Content-Type header: Dangerous content type outside the mime type declaration
+921240	REQUEST-921-PROTOCOL-ATTACK.conf	312	1	1	REQUEST_URI_RAW	@rx	none,urlDecodeUni,lowercase	0	CRITICAL	application-multi language-multi platform-apache attack-protocol	mod_proxy attack attempt detected
+921250	REQUEST-921-PROTOCOL-ATTACK.conf	341	1	1	REQUEST_COOKIES:/\x22?\x24Version/	@streq	none,lowercase	0	CRITICAL	application-multi language-multi attack-protocol	Old Cookies V1 usage attempt detected
+921151	REQUEST-921-PROTOCOL-ATTACK.conf	374	1	2	ARGS_GET	@rx	none	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Header Injection Attack via payload (CR/LF detected)
+921422	REQUEST-921-PROTOCOL-ATTACK.conf	410	1	2	REQUEST_HEADERS:Content-Type	@rx	none,lowercase	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	Content-Type header: Dangerous content type outside the mime type declaration
+921230	REQUEST-921-PROTOCOL-ATTACK.conf	448	1	3	&REQUEST_HEADERS:Range	@gt	none	0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Range Header detected
+921180	REQUEST-921-PROTOCOL-ATTACK.conf	504	2	3	TX:/paramcounter_.*/	@gt		0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Parameter Pollution (%{MATCHED_VAR_NAME})
+921210	REQUEST-921-PROTOCOL-ATTACK.conf	546	2	3	ARGS_NAMES	@rx		0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Parameter Pollution after detecting bogus char after parameter array
+921220	REQUEST-921-PROTOCOL-ATTACK.conf	597	2	4	ARGS_NAMES	@rx		0	CRITICAL	application-multi language-multi platform-multi attack-protocol	HTTP Parameter Pollution possible via array notation

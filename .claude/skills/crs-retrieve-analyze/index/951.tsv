@@ -1,0 +1,18 @@
+# source: RESPONSE-951-DATA-LEAKAGES-SQL.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+951110	RESPONSE-951-DATA-LEAKAGES-SQL.conf	59	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-msaccess attack-disclosure	Microsoft Access SQL Information Leakage
+951120	RESPONSE-951-DATA-LEAKAGES-SQL.conf	85	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-oracle attack-disclosure	Oracle SQL Information Leakage
+951130	RESPONSE-951-DATA-LEAKAGES-SQL.conf	111	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-db2 attack-disclosure	DB2 SQL Information Leakage
+951140	RESPONSE-951-DATA-LEAKAGES-SQL.conf	137	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-emc attack-disclosure	EMC SQL Information Leakage
+951150	RESPONSE-951-DATA-LEAKAGES-SQL.conf	158	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-firebird attack-disclosure	firebird SQL Information Leakage
+951160	RESPONSE-951-DATA-LEAKAGES-SQL.conf	179	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-frontbase attack-disclosure	Frontbase SQL Information Leakage
+951170	RESPONSE-951-DATA-LEAKAGES-SQL.conf	200	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-hsqldb attack-disclosure	hsqldb SQL Information Leakage
+951180	RESPONSE-951-DATA-LEAKAGES-SQL.conf	226	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-informix attack-disclosure	informix SQL Information Leakage
+951190	RESPONSE-951-DATA-LEAKAGES-SQL.conf	252	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-ingres attack-disclosure	ingres SQL Information Leakage
+951200	RESPONSE-951-DATA-LEAKAGES-SQL.conf	278	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-interbase attack-disclosure	interbase SQL Information Leakage
+951210	RESPONSE-951-DATA-LEAKAGES-SQL.conf	304	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-maxdb attack-disclosure	maxDB SQL Information Leakage
+951220	RESPONSE-951-DATA-LEAKAGES-SQL.conf	330	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-mssql attack-disclosure	mssql SQL Information Leakage
+951230	RESPONSE-951-DATA-LEAKAGES-SQL.conf	356	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-mysql attack-disclosure	mysql SQL Information Leakage
+951240	RESPONSE-951-DATA-LEAKAGES-SQL.conf	382	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-pgsql attack-disclosure	postgres SQL Information Leakage
+951250	RESPONSE-951-DATA-LEAKAGES-SQL.conf	408	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-sqlite attack-disclosure	sqlite SQL Information Leakage
+951260	RESPONSE-951-DATA-LEAKAGES-SQL.conf	434	4	1	RESPONSE_BODY	@rx	none	0	CRITICAL	application-multi language-multi platform-sybase attack-disclosure	Sybase SQL Information Leakage

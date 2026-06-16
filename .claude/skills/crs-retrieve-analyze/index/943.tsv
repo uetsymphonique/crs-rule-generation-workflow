@@ -1,0 +1,5 @@
+# source: REQUEST-943-APPLICATION-ATTACK-SESSION-FIXATION.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+943100	REQUEST-943-APPLICATION-ATTACK-SESSION-FIXATION.conf	36	2	1	REQUEST_COOKIES|REQUEST_COOKIES_NAMES|ARGS_NAMES|ARGS|XML:/*	@rx	none,urlDecodeUni	0	CRITICAL	application-multi language-multi platform-multi attack-fixation	Possible Session Fixation Attack: Setting Cookie Values in HTML
+943110	REQUEST-943-APPLICATION-ATTACK-SESSION-FIXATION.conf	63	2	1	ARGS_NAMES	@rx	none,lowercase	1	CRITICAL	application-multi language-multi platform-multi attack-fixation	Possible Session Fixation Attack: SessionID Parameter Name with Off-Domain Referer
+943120	REQUEST-943-APPLICATION-ATTACK-SESSION-FIXATION.conf	91	2	1	ARGS_NAMES	@rx	none,lowercase	1	CRITICAL	application-multi language-multi platform-multi attack-fixation	Possible Session Fixation Attack: SessionID Parameter Name with No Referer

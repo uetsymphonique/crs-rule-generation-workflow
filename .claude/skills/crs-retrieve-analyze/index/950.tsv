@@ -1,0 +1,6 @@
+# source: RESPONSE-950-DATA-LEAKAGES.conf	(regenerate: python .claude/skills/crs-retrieve-analyze/tools/build_rule_index.py)
+id	file	line	phase	pl	variables	operator	transforms	chain	severity	tags	msg
+950130	RESPONSE-950-DATA-LEAKAGES.conf	55	4	1	RESPONSE_BODY	@rx	none	0	ERROR	application-multi language-multi platform-multi attack-disclosure	Directory Listing
+950140	RESPONSE-950-DATA-LEAKAGES.conf	87	4	1	RESPONSE_BODY	@rx	none	0	ERROR	application-multi language-multi platform-multi attack-disclosure	CGI source code leakage
+950150	RESPONSE-950-DATA-LEAKAGES.conf	110	4	1	RESPONSE_BODY	@pmFromFile:asp-dotnet-errors.data	none	0	ERROR	application-multi language-aspnet platform-multi attack-disclosure	ASP.NET exception leakage
+950100	RESPONSE-950-DATA-LEAKAGES.conf	140	3	2	RESPONSE_STATUS	@rx	none	0	ERROR	application-multi language-multi platform-multi attack-disclosure	The Application Returned a 500-Level Status Code
