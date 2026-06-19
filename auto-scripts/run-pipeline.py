@@ -17,6 +17,10 @@
 # Skills self-gate: scope_gate in {virtual-patch-only, out-of-scope-structural}
 # causes Step 2 and Step 3 to HALT early without error.
 #
+# The orchestrator reads verdict.json's scope_gate.decision after Step 1 and
+# skips Steps 2 and 3 locally for those HALT decisions, avoiding API calls that
+# the skills would only reject anyway.
+#
 # Per-step debug logs: out/<id>/claude-step<N>.log
 # Token/cost summary printed at end of each step and pipeline end.
 
@@ -35,12 +39,16 @@ parser.add_argument("--gen-variants",    default="class-only",
 parser.add_argument("--model",           default="claude-sonnet-4-6")
 parser.add_argument("--log-file",        default="pipeline-run.log")
 parser.add_argument("--max-budget-usd",  default="5.50")
-parser.add_argument("--max-turns",       default="50")
+parser.add_argument("--max-turns",       default="70")
 parser.add_argument("--resume",          action="store_true")
 args = parser.parse_args()
 
 # ── cumulative counters ───────────────────────────────────────────────────────
 totals = {"input": 0, "output": 0, "cache_read": 0, "cache_write": 0, "cost": 0.0}
+
+# scope_gate decisions that cause crs-variant-gen + crs-rule-author to HALT.
+# Detecting them locally lets us skip Steps 2 and 3 without spending API calls.
+HALT_GATES = {"virtual-patch-only", "out-of-scope-structural"}
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 def log(msg: str):
@@ -129,7 +137,7 @@ log(f"=== pipeline start: {len(templates)} template(s), model={args.model}, "
     f"gen-variants={args.gen_variants}, max-budget=${args.max_budget_usd}/step, "
     f"max-turns={args.max_turns} ===")
 
-stats = {"ok": 0, "covered": 0, "warn": 0}
+stats = {"ok": 0, "covered": 0, "gated": 0, "warn": 0}
 
 for tpl in templates:
     id  = Path(tpl).stem
@@ -157,6 +165,15 @@ for tpl in templates:
     if verdict.get("root_causes") is not None:
         log("  covered - no new rule needed")
         stats["covered"] += 1
+        continue
+
+    # ── scope-gate short-circuit ──────────────────────────────────────────────
+    # crs-variant-gen + crs-rule-author HALT on these decisions; skip locally
+    # instead of paying for API calls that would only be rejected.
+    gate_decision = (verdict.get("scope_gate") or {}).get("decision")
+    if gate_decision in HALT_GATES:
+        log(f"  gated - scope_gate.decision={gate_decision} - skipping Steps 2 & 3 (no API call)")
+        stats["gated"] += 1
         continue
 
     # ── Step 2: variant-gen ───────────────────────────────────────────────────
@@ -192,7 +209,7 @@ for tpl in templates:
         log("  WARN: new.json missing after Step 3")
         stats["warn"] += 1
 
-log(f"=== pipeline end: ok={stats['ok']} covered={stats['covered']} warn={stats['warn']} | "
+log(f"=== pipeline end: ok={stats['ok']} covered={stats['covered']} gated={stats['gated']} warn={stats['warn']} | "
     f"tokens in={totals['input']} out={totals['output']} "
     f"cache_read={totals['cache_read']} cache_write={totals['cache_write']} "
     f"total_cost=${totals['cost']:.4f} ===")

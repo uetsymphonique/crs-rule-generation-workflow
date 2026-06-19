@@ -1,6 +1,6 @@
 ---
 name: crs-rule-author
-description: Stage 3 primary của pipeline CRS rule-generation. Nhận verdict (not-covered hoặc covered+force-candidates) + Nuclei template + extended-requests (PoC + biến thể từ crs-variant-gen Stage 2), synthesize MỘT CRS SecRule mới từ zero với RAG từ comibined-docs. Thiết kế variable scope, operator, transform pipeline, phase, anomaly scoring; chọn rule ID không conflict; bắt attack class bao phủ cả PoC lẫn extended variants. HALT nếu scope_gate ∈ {out-of-scope-structural, virtual-patch-only} hoặc covered+candidate_rules rỗng. Verify bằng engine (verify_rule.py) trước khi emit — max 3 vòng. Write-only → out/<id>/new.json. KHÔNG commit vào coreruleset.
+description: Stage 3 primary của pipeline CRS rule-generation. Nhận verdict (not-covered hoặc covered+force-candidates) + Nuclei template + extended-requests (PoC + biến thể từ crs-variant-gen Stage 2), synthesize MỘT CRS SecRule mới từ zero với RAG từ comibined-docs. Thiết kế variable scope, operator, transform pipeline, phase, anomaly scoring; chọn rule ID không conflict; bắt attack class bao phủ cả PoC lẫn extended variants. HALT nếu scope_gate ∈ {out-of-scope-structural, virtual-patch-only} hoặc covered+candidate_rules rỗng. Verify bằng engine (verify_rule.py) trước khi emit — max 5 vòng. Write-only → out/<id>/new.json. KHÔNG commit vào coreruleset.
 effort: medium
 allowed-tools:
   - Read
@@ -34,10 +34,10 @@ Companion file (load on-demand đúng stage cần):
 | INGEST | đọc verdict/candidate input | scope_gate ∈ {out-of-scope-structural, virtual-patch-only} → STOP · covered & candidate_rules == [] → STOP · ngược lại → DESIGN |
 | DESIGN | thiết kế detection logic (set/tăng `iter`) | → SYNTHESIZE |
 | SYNTHESIZE | viết rule + check metadata gate | metadata fail (no-deny/metadata-tiered/transforms-mandatory/id-placeholder) → SYNTHESIZE (fix tại chỗ, không thoát) · ok → VERIFY |
-| VERIFY | probe rule, đọc triggered | all triggered → EMIT · parse_ok=false → SYNTHESIZE (fix syntax, `iter` không tăng) · any triggered=false & iter<3 → DESIGN (iter++) · any triggered=false & iter=3 → EMIT (residual gap) |
+| VERIFY | probe rule, đọc triggered | all triggered → EMIT · parse_ok=false → SYNTHESIZE (fix syntax, `iter` không tăng) · any triggered=false & iter<5 → DESIGN (iter++) · any triggered=false & iter=5 → EMIT (residual gap) |
 | EMIT | xuất rule (pass hoặc residual gap) | → STOP |
 
-Tuần tự nghiêm ngặt. Không skip stage. **Iteration counter**: khởi tạo `iter=1` tại VERIFY lần đầu; mỗi lần VERIFY fail loop về DESIGN tăng `iter`. EMIT chỉ xảy ra sau VERIFY — hoặc pass (all triggered), hoặc terminal (iter=3). Metadata fail phát hiện cuối SYNTHESIZE → fix trong SYNTHESIZE, không thoát sang VERIFY.
+Tuần tự nghiêm ngặt. Không skip stage. **Iteration counter**: khởi tạo `iter=1` tại VERIFY lần đầu; mỗi lần VERIFY fail loop về DESIGN tăng `iter`. EMIT chỉ xảy ra sau VERIFY — hoặc pass (all triggered), hoặc terminal (iter=5). Metadata fail phát hiện cuối SYNTHESIZE → fix trong SYNTHESIZE, không thoát sang VERIFY.
 
 ---
 
@@ -159,8 +159,8 @@ python .claude/skills/crs-rule-author/tools/verify_rule.py \
 
 **Gate (engine phán, không phải LLM):**
 - `parse_ok: false` → rule không compile → **không EMIT**, loop về SYNTHESIZE (fix syntax; iteration không tăng).
-- Bất kỳ `triggered: false` **và** `iter < 3` → rule chưa bao đủ → loop về **DESIGN** (tăng iter, mở rộng pattern/scope bao variant lọt; ghi label nào lọt + `meta[].rationale` của nó vào context thiết kế).
-- Bất kỳ `triggered: false` **và** `iter = 3` → **terminal**: EMIT với `triggered: false` labels ghi vào `design_rationale` (residual gap) + hạ `confidence` xuống `medium` hoặc `low`.
+- Bất kỳ `triggered: false` **và** `iter < 5` → rule chưa bao đủ → loop về **DESIGN** (tăng iter, mở rộng pattern/scope bao variant lọt; ghi label nào lọt + `meta[].rationale` của nó vào context thiết kế).
+- Bất kỳ `triggered: false` **và** `iter = 5` → **terminal**: EMIT với `triggered: false` labels ghi vào `design_rationale` (residual gap) + hạ `confidence` xuống `medium` hoặc `low`.
 - Mọi `triggered: true` → **pass** → sang EMIT.
 
 > **Engine constraint** (proposal §6 + probe-engine README): `--candidate-rule-file` load sau rule 949 → trigger hiện trong `matched_rules` nhưng anomaly score KHÔNG được 949 đếm trong cùng run. VERIFY chỉ xác nhận **trigger/fire**, KHÔNG xác nhận scoring/block. Claim scoring (vd "shift score 3→8, crosses threshold") ghi vào `design_rationale` dạng "chưa engine-verified" — không loại bỏ, chỉ đánh dấu. Verify full CRS (không harness một-rule) đảm bảo fidelity transform pipeline (JSON body processor, phase resolution).
@@ -170,7 +170,7 @@ python .claude/skills/crs-rule-author/tools/verify_rule.py \
 ## EMIT — terminal (WRITE-ONLY)
 
 Serialize `out/<id>/new.json` theo ##SCHEMA. Toàn bộ rule + rationale + RAG citation nằm **trong artifact**.
-- `class_coverage` PHẢI phản ánh kết quả VERIFY: với mỗi request trong extended-requests, ghi `{"payload": "<label>", "matched": <triggered>, "why": "..."}`. Nếu iter=3 terminal: `matched: false` entries giữ nguyên + ghi vào `design_rationale` (residual gap) + `confidence` hạ xuống `medium`/`low`.
+- `class_coverage` PHẢI phản ánh kết quả VERIFY: với mỗi request trong extended-requests, ghi `{"payload": "<label>", "matched": <triggered>, "why": "..."}`. Nếu iter=5 terminal: `matched: false` entries giữ nguyên + ghi vào `design_rationale` (residual gap) + `confidence` hạ xuống `medium`/`low`.
 - Sau khi write: in **đúng một dòng** `out/<id>/new.json — new rule: <rule_id> @ <target_file>`. Không gì khác. HALT.
 
 Exception: chỉ present nội dung artifact khi user request tường minh (vd "show the rule", "explain design").
@@ -183,7 +183,7 @@ Không exit nào khác được phép (commit coreruleset, tạo thêm rule, inv
 1. **INGEST** — chạy `parse_verdict.py` → Read `author-context.json` (KHÔNG đọc verdict.json); guard `input-guard`: check `scope_gate.decision` trước (out-of-scope-structural/virtual-patch-only → HALT), rồi `coverage`+`candidate_rules`; đọc classification / payload_samples / scope_signal / pl_gap / candidate_rules / already_covered_by; Read `extended-requests.json` nếu có (labels + meta = design target); Read Nuclei template; chốt target_file (từ `target_file_hint`, override theo family) + phase (từ scope).
 2. **DESIGN** — (few-shot từ candidate_rules / already_covered_by) variable scope (ưu tiên `engine_confirmed_var`) / operator / transform / chain / PL (định vị từ `pl_gap`); khi có extended-requests: rule phải thiết kế để bao phủ mọi variant label, ghi từng label vào context design. Mỗi quyết định cite RAG.
 3. **SYNTHESIZE** — id placeholder `<fileID>XXX`; metadata Tier 1+2; action block `block`+anomaly; (nếu cần) regex + `.ra` source; metadata checklist (no-deny / metadata-tiered / transforms-mandatory / id-placeholder) cuối SYNTHESIZE — fail thì fix tại chỗ.
-4. **VERIFY** — chạy `verify_rule.py new.json extended-requests.json verify-report.json`; Read `verify-report.json`; engine gate: `parse_ok=false` → fix syntax trong SYNTHESIZE (loop, iter không tăng); `triggered=false` & iter<3 → DESIGN loop (tăng iter); iter=3 terminal → sang EMIT; all triggered → sang EMIT.
+4. **VERIFY** — chạy `verify_rule.py new.json extended-requests.json verify-report.json`; Read `verify-report.json`; engine gate: `parse_ok=false` → fix syntax trong SYNTHESIZE (loop, iter không tăng); `triggered=false` & iter<5 → DESIGN loop (tăng iter); iter=5 terminal → sang EMIT; all triggered → sang EMIT.
 5. **EMIT** — serialize `out/<id>/new.json` (class_coverage phản ánh verify-report: triggered entries + residual gap nếu terminal); in dòng confirmation; HALT.
 
 ## Failure handling
@@ -194,4 +194,4 @@ Không exit nào khác được phép (commit coreruleset, tạo thêm rule, inv
 4. Không tìm thấy RAG support cho một operator/transform định dùng → đổi sang cái có doc, không invent.
 5. `extended-requests.json` không tồn tại (variant lane off/skip) → `verify_rule.py` **tự fallback** verify PoC-only từ `probe-input.json` (Stage 1 luôn ghi), KHÔNG block. Chỉ exit lỗi khi **cả** `extended-requests.json` lẫn `probe-input.json` đều thiếu → khi đó báo user chạy Stage 1 trước. KHÔNG bỏ qua VERIFY.
 6. VERIFY `parse_ok: false` (syntax error) → đọc `error` field từ probe-engine output nếu có; fix syntax ở SYNTHESIZE; không tăng iter; chạy lại VERIFY.
-7. VERIFY `triggered: false` sau iter=3 → EMIT với residual gap rõ ràng trong `design_rationale` (liệt kê label lọt + `meta[].rationale` từ extended-requests) + `confidence: low`; KHÔNG drop âm thầm, KHÔNG loop tiếp.
+7. VERIFY `triggered: false` sau iter=5 → EMIT với residual gap rõ ràng trong `design_rationale` (liệt kê label lọt + `meta[].rationale` từ extended-requests) + `confidence: low`; KHÔNG drop âm thầm, KHÔNG loop tiếp.
