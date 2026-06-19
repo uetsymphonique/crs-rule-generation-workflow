@@ -1,4 +1,4 @@
 .vscode/
 
 # crs-retrieve-analyze skill: generated per-template verdicts
-out/
+# out/

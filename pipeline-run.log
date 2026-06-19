@@ -453,3 +453,112 @@ Scope gate rationale: G0 â€” no root-cause rule fired (920180/920320 are pr
 [15:30:16]   done -> out\CVE-2025-34085\new.json
 [15:30:16] --- [CVE-2025-34300] nuclei-templates/http/cves/2025/CVE-2025-34300.yaml
 [15:30:16]   Step 1: crs-retrieve-analyze --gen-variants=off
+[15:33:34]     [tokens] in=57808 out=13958 cache_read=1308416 cache_write=0 cost=$1.2922 | turns=26 dur=197.2s stop=end_turn term=completed
+[15:33:34]     [result] All artifacts complete. Final output:
+
+```
+out/CVE-2025-34300/verdict.json â€” not-covered
+```
+[15:33:34]   Step 2: crs-variant-gen --gen-variants=root-cause-only
+[15:36:40]     [tokens] in=57930 out=13325 cache_read=1243776 cache_write=0 cost=$1.2447 | turns=30 dur=185.2s stop=end_turn term=completed
+[15:36:40]     [result] `out/CVE-2025-34300/extended-requests.json` â€” class-only: 5 variant(s)
+[15:36:40]   Step 3: crs-rule-author
+[15:42:59]     [tokens] in=70034 out=28590 cache_read=2027648 cache_write=0 cost=$2.0787 | turns=44 dur=378.5s stop=end_turn term=completed
+[15:42:59]     [result] out/CVE-2025-34300/new.json â€” new rule: 934XXX @ REQUEST-934-APPLICATION-ATTACK-GENERIC.conf
+[15:42:59]   done -> out\CVE-2025-34300\new.json
+[15:42:59] --- [CVE-2025-34291] nuclei-templates/http/cves/2025/CVE-2025-34291.yaml
+[15:42:59]   Step 1: crs-retrieve-analyze --gen-variants=off
+[15:45:51]     [tokens] in=51666 out=12104 cache_read=1275264 cache_write=0 cost=$1.1986 | turns=27 dur=171.7s stop=end_turn term=completed
+[15:45:51]     [result] out/CVE-2025-34291/verdict.json â€” not-covered
+[15:45:51]   gated - scope_gate.decision=out-of-scope-structural - skipping Steps 2 & 3 (no API call)
+[15:45:51] --- [CVE-2025-3605] nuclei-templates/http/cves/2025/CVE-2025-3605.yaml
+[15:45:51]   Step 1: crs-retrieve-analyze --gen-variants=off
+[15:47:52]     [tokens] in=51157 out=8477 cache_read=878464 cache_write=0 cost=$0.9069 | turns=20 dur=120.4s stop=end_turn term=completed
+[15:47:52]     [result] out/CVE-2025-3605/verdict.json â€” not-covered
+[15:47:52]   gated - scope_gate.decision=virtual-patch-only - skipping Steps 2 & 3 (no API call)
+[15:47:52] --- [CVE-2025-4009] nuclei-templates/http/cves/2025/CVE-2025-4009.yaml
+[15:47:52]   Step 1: crs-retrieve-analyze --gen-variants=off
+[15:49:46]     [tokens] in=49580 out=9258 cache_read=573568 cache_write=0 cost=$0.7661 | turns=26 dur=113.4s stop=end_turn term=completed
+[15:49:46]     [result] out/CVE-2025-4009/verdict.json â€” not-covered
+[15:49:46]   Step 2: crs-variant-gen --gen-variants=root-cause-only
+[15:51:53]     [tokens] in=53865 out=8593 cache_read=916224 cache_write=0 cost=$0.9423 | turns=28 dur=126.2s stop=end_turn term=completed
+[15:51:53]     [result] `out/CVE-2025-4009/extended-requests.json` â€” class-only: 5 variant(s)
+[15:51:53]   Step 3: crs-rule-author
+[15:57:11]     [tokens] in=67727 out=22559 cache_read=2099968 cache_write=0 cost=$1.9526 | turns=47 dur=317.1s stop=end_turn term=completed
+[15:57:11]     [result] out/CVE-2025-4009/new.json â€” new rule: 932XXX @ REQUEST-932-APPLICATION-ATTACK-RCE.conf
+[15:57:11]   done -> out\CVE-2025-4009\new.json
+[15:57:11] --- [CVE-2025-40552] nuclei-templates/http/cves/2025/CVE-2025-40552.yaml
+[15:57:11]   Step 1: crs-retrieve-analyze --gen-variants=off
+[15:59:46]     [tokens] in=57226 out=10652 cache_read=1323136 cache_write=0 cost=$1.2140 | turns=26 dur=154.2s stop=end_turn term=completed
+[15:59:46]     [result] `out/CVE-2025-40552/verdict.json` â€” not-covered
+[15:59:46]   gated - scope_gate.decision=virtual-patch-only - skipping Steps 2 & 3 (no API call)
+[15:59:46] --- [CVE-2025-40554] nuclei-templates/http/cves/2025/CVE-2025-40554.yaml
+[15:59:46]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:02:58]     [tokens] in=51055 out=12335 cache_read=1532672 cache_write=0 cost=$1.3300 | turns=32 dur=191.2s stop=end_turn term=completed
+[16:02:58]     [result] `out/CVE-2025-40554/verdict.json` â€” **not-covered**
+[16:02:58]   gated - scope_gate.decision=out-of-scope-structural - skipping Steps 2 & 3 (no API call)
+[16:02:58] --- [CVE-2025-41646] nuclei-templates/http/cves/2025/CVE-2025-41646.yaml
+[16:02:58]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:05:33]     [tokens] in=57572 out=10654 cache_read=1261312 cache_write=0 cost=$1.1849 | turns=26 dur=153.9s stop=end_turn term=completed
+[16:05:33]     [result] `out/CVE-2025-41646/verdict.json â€” not-covered`
+[16:05:33]   gated - scope_gate.decision=virtual-patch-only - skipping Steps 2 & 3 (no API call)
+[16:05:33] --- [CVE-2025-4380] nuclei-templates/http/cves/2025/CVE-2025-4380.yaml
+[16:05:33]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:07:22]     [tokens] in=48480 out=6696 cache_read=1261952 cache_write=0 cost=$1.0408 | turns=29 dur=108.0s stop=end_turn term=completed
+[16:07:22]     [result] All stages complete. **HALT.**
+
+```
+out/CVE-2025-4380/verdict.json â€” covered
+```
+
+Root-cause rule **930110** (`attack-lfi`, PL1) fires on `ARGS:bsa_template` carrying the `../php/example` path-traversal payload, detected by the `@rx` pattern `(?:^|[/;\x5c])\.{2,3}[/;\x5c]`. Blocked at PL1 (score_pl1=13 >= threshold=5). No gap â€” existing CRS rule covers this template.
+[16:07:22]   covered - no new rule needed
+[16:07:22] --- [CVE-2025-4334] nuclei-templates/http/cves/2025/CVE-2025-4334.yaml
+[16:07:22]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:09:53]     [tokens] in=49393 out=10026 cache_read=1440384 cache_write=0 cost=$1.2178 | turns=31 dur=150.6s stop=end_turn term=completed
+[16:09:53]     [result] out/cve-2025-4334/verdict.json â€” not-covered
+[16:09:53]   gated - scope_gate.decision=virtual-patch-only - skipping Steps 2 & 3 (no API call)
+[16:09:53] --- [CVE-2025-47539] nuclei-templates/http/cves/2025/CVE-2025-47539.yaml
+[16:09:53]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:12:45]     [tokens] in=49285 out=12243 cache_read=1189760 cache_write=0 cost=$1.1474 | turns=26 dur=171.3s stop=end_turn term=completed
+[16:12:45]     [result] out/CVE-2025-47539/verdict.json â€” not-covered
+[16:12:45]   gated - scope_gate.decision=virtual-patch-only - skipping Steps 2 & 3 (no API call)
+[16:12:45] --- [CVE-2025-4322] nuclei-templates/http/cves/2025/CVE-2025-4322.yaml
+[16:12:45]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:15:47]     [tokens] in=49501 out=12607 cache_read=1212544 cache_write=0 cost=$1.1690 | turns=26 dur=181.1s stop=end_turn term=completed
+[16:15:47]     [result] out/CVE-2025-4322/verdict.json â€” not-covered
+[16:15:47]   Step 2: crs-variant-gen --gen-variants=root-cause-only
+[16:18:36]     [tokens] in=51770 out=11791 cache_read=916608 cache_write=0 cost=$1.0119 | turns=24 dur=167.8s stop=end_turn term=completed
+[16:18:36]     [result] `out/CVE-2025-4322/extended-requests.json` â€” class-only: 6 variant(s)
+[16:18:36]   Step 3: crs-rule-author
+[16:28:53]     [tokens] in=78815 out=48672 cache_read=4648960 cache_write=0 cost=$3.9354 | turns=73 dur=616.9s stop=end_turn term=completed
+[16:28:53]     [result] out/CVE-2025-4322/new.json â€” new rule: 920XXX @ REQUEST-920-PROTOCOL-ENFORCEMENT.conf
+[16:28:53]   done -> out\CVE-2025-4322\new.json
+[16:28:53] --- [CVE-2025-47646] nuclei-templates/http/cves/2025/CVE-2025-47646.yaml
+[16:28:53]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:31:19]     [tokens] in=48860 out=9944 cache_read=1271040 cache_write=0 cost=$1.1284 | turns=28 dur=145.1s stop=end_turn term=completed
+[16:31:19]     [result] out/CVE-2025-47646/verdict.json â€” not-covered
+[16:31:19]   gated - scope_gate.decision=virtual-patch-only - skipping Steps 2 & 3 (no API call)
+[16:31:19] --- [CVE-2025-48827] nuclei-templates/http/cves/2025/CVE-2025-48827.yaml
+[16:31:19]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:34:29]     [tokens] in=60795 out=13187 cache_read=1358848 cache_write=0 cost=$1.3131 | turns=28 dur=189.6s stop=end_turn term=completed
+[16:34:29]     [result] out/CVE-2025-48827/verdict.json â€” not-covered
+[16:34:29]   gated - scope_gate.decision=virtual-patch-only - skipping Steps 2 & 3 (no API call)
+[16:34:29] --- [CVE-2025-48828] nuclei-templates/http/cves/2025/CVE-2025-48828.yaml
+[16:34:29]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:37:15]     [tokens] in=51569 out=12216 cache_read=1211392 cache_write=0 cost=$1.1689 | turns=29 dur=164.6s stop=end_turn term=completed
+[16:37:15]     [result] out/CVE-2025-48828/verdict.json â€” covered
+[16:37:15]   covered - no new rule needed
+[16:37:15] --- [CVE-2025-49001] nuclei-templates/http/cves/2025/CVE-2025-49001.yaml
+[16:37:15]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:39:43]     [tokens] in=55463 out=11904 cache_read=721152 cache_write=0 cost=$0.9355 | turns=22 dur=147.6s stop=end_turn term=completed
+[16:39:43]     [result] out/CVE-2025-49001/verdict.json â€” not-covered
+[16:39:43]   gated - scope_gate.decision=out-of-scope-structural - skipping Steps 2 & 3 (no API call)
+[16:39:43] --- [CVE-2025-49493] nuclei-templates/http/cves/2025/CVE-2025-49493.yaml
+[16:39:43]   Step 1: crs-retrieve-analyze --gen-variants=off
+[16:42:27]     [tokens] in=60444 out=12283 cache_read=1303552 cache_write=0 cost=$1.2611 | turns=25 dur=162.9s stop=end_turn term=completed
+[16:42:27]     [result] `out/CVE-2025-49493/verdict.json â€” not-covered`
+[16:42:27]   Step 2: crs-variant-gen --gen-variants=root-cause-only
+[16:44:56]     [tokens] in=52358 out=11933 cache_read=977536 cache_write=0 cost=$1.0489 | turns=31 dur=148.5s stop=end_turn term=completed
+[16:44:56]     [result] `out/CVE-2025-49493/extended-requests.json` â€” class-only: 5 variant(s)
+[16:44:56]   Step 3: crs-rule-author
