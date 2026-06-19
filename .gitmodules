@@ -16,3 +16,6 @@
 [submodule "coraza"]
 	path = coraza
 	url = https://github.com/corazawaf/coraza
+[submodule "PayloadsAllTheThings"]
+	path = PayloadsAllTheThings
+	url = https://github.com/swisskyrepo/PayloadsAllTheThings

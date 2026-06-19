@@ -81,7 +81,6 @@ SecRule ARGS|ARGS_NAMES|REQUEST_BODY "@rx <pattern bắt class>" \
     t:none,t:urlDecodeUni,t:lowercase,\
     msg:'<mô tả rule detect cái gì>',\
     logdata:'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}',\
-    tag:'paranoia-level/1',\
     severity:'CRITICAL',\
     setvar:'tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'"
 ```
@@ -137,7 +136,8 @@ Action disruptive + scoring `setvar` đặt ở rule **đầu** chain; rule con 
 
 | Field | Vai trò |
 |---|---|
-| `coverage` | `not-covered` / `covered` — quyết gate `input-guard` (cùng `candidate_rules`) |
+| `scope_gate.decision` | `in-scope` / `virtual-patch-only` / `out-of-scope-structural` (null khi covered) — **check trước `coverage`** ở `input-guard`: hai cái sau → HALT (rule-author chỉ làm generic CRS; virtual-patch là app-specific để content team tự viết theo `scope_gate.rationale`) |
+| `coverage` | `not-covered` / `covered` — quyết gate `input-guard` (cùng `candidate_rules`); chỉ xét khi `scope_gate.decision` = `in-scope`/null |
 | `classification` | families / injection_point / severity / protocol / cwe_hint / confidence → target_file + phase + severity (+ `confidence` vào artifact) |
 | `payload_samples` | material VALIDATE class-coverage (tự sinh bypass variant) |
 | `scope_signal.engine_confirmed_var` | scope **engine xác nhận** (ưu tiên hơn injection_point prose); rỗng ⇒ fallback prose |
@@ -183,8 +183,8 @@ Schema đầy đủ + cách derive: docstring `tools/parse_verdict.py`.
     "paranoia_severity": "<vì sao PL + severity này>"
   },
   "class_coverage": [
-    {"payload": "<payload_sample 1>", "matched": true, "why": "..."},
-    {"payload": "<bypass variant>", "matched": true, "why": "..."}
+    {"payload": "poc", "matched": true, "why": "..."},
+    {"payload": "variant:exec", "matched": true, "why": "..."}
   ],
   "few_shot_from": [932160],
   "confidence": "high",
@@ -193,11 +193,11 @@ Schema đầy đủ + cách derive: docstring `tools/parse_verdict.py`.
 ```
 
 ### Quy tắc populate (tất cả vào ARTIFACT, không ra conversation)
-- `class_coverage` PHẢI có một entry cho **mỗi** `payload_samples` (poc + poc-decoded) + ít nhất một bypass variant; tất cả `matched: true` (gate `class-not-poc`). Nếu có `matched: false` → chưa được EMIT, quay lại SYNTHESIZE.
+- `class_coverage` PHẢI có một entry cho **mỗi** request trong `extended-requests.json` (keyed theo `label`: `poc` + từng `variant:*` từ crs-variant-gen); `matched` = `triggered` trong `verify-report.json` (**engine phán, không self-assert**). Pass khi mọi `matched: true`. `triggered: false` khi `iter<3` → loop về DESIGN (xem state machine SKILL.md), KHÔNG emit. `iter=3` terminal → giữ nguyên entries `matched: false` làm residual gap + ghi label lọt (kèm `meta[].rationale`) vào `design_rationale` + hạ `confidence` (medium/low).
 - `design_rationale` mang justification mỗi quyết định (scope/operator/transform/phase/chain/PL) **kèm cite RAG inline** (path/section trong `comibined-docs/`). Đây là nơi grounding sống — KHÔNG có array `rag_citations` riêng (citation viết thẳng trong prose từng field).
 - `few_shot_from` = list `id` candidate_rules đã mượn làm idiom (rỗng `[]` nếu greenfield thuần — `candidate_rules` rỗng). Traceability: reviewer biết rule mới phỏng theo idiom nào.
-- `confidence` = mức tin cậy thiết kế (`high`/`medium`/`low`); `low` khi scope/class phải đoán (template sparse hoặc family mơ hồ → fallback 934).
-- `secrule_text` là rule hoàn chỉnh, đúng line-continuation, copy-paste vào `.conf` được.
+- `confidence` = mức tin cậy thiết kế (`high`/`medium`/`low`); `low` khi scope/class phải đoán (template sparse hoặc family mơ hồ → fallback 934). **PoC-only verify** (không variant — class-breadth chưa engine-verified) → cap `medium` trừ khi class hẹp tới mức một construct phủ trọn (xem SKILL.md ##VERIFY PoC-only mode).
+- `secrule_text` là rule hoàn chỉnh, đúng line-continuation, copy-paste vào `.conf` được. **Dùng `"\n".join(lines)` để tạo actual newline** — `\\\n` trong Python string literal không đi qua JSON round-trip đáng tin cậy và sẽ ra literal `\n` thay vì newline, khiến `parse_ok=False`. Hoặc dùng single-line format (không cần continuation) — valid ModSecurity syntax và dễ hơn.
 - Tier 3 metadata (ver/maturity/accuracy/classification tags) **không** emit (gate `metadata-tiered`) — không cần liệt kê field đã bỏ; chỉ thêm khi user yêu cầu release-ready.
 - Write-only: sau khi write chỉ in `out/<id>/new.json — new rule: <id> @ <file>`.
 
@@ -223,6 +223,9 @@ Sai — tốn token vô ích ở stage recommendation. Dùng placeholder `<fileI
 ### "Match được payload rồi, gán PL1 luôn"
 Sai nếu token rộng/FP cao. Token dễ xuất hiện trong traffic hợp lệ → PL cao hơn hoặc chain với endpoint gate.
 
+### "Dùng `\\\n` trong Python string để làm line-continuation cho `secrule_text`"
+Sai và dễ vỡ. `\\\n` (backslash + newline) không đi qua JSON round-trip (`json.dump`/`json.load`) đáng tin cậy — kết quả thực tế là literal `\n` trong conf, khiến `parse_ok=False`. Dùng `"\n".join(lines)` hoặc single-line format thay thế.
+
 ### "Grep `id:<id>` trong `.conf` để xem rule few-shot"
 Sai và phí token. Dòng `SecRule` chứa regex body machine-generated (~12KB/dòng). Idiom cần (variables/transforms/phase/pl/severity/chain) nằm trọn trong **1 row index TSV** (`Grep ^<id>\t crs-retrieve-analyze/index/<fileid>.tsv`); chỉ `Read` block `.conf` (offset/limit) khi thật cần regex thật. Đây là strategy `no-conf-read` của Stage 1.
 
@@ -240,6 +243,8 @@ Sai và phí token. Dòng `SecRule` chứa regex body machine-generated (~12KB/d
 | "Body JSON chắc vào ARGS" | Chỉ khi requestBodyProcessor=JSON active; nếu không, cần REQUEST_BODY |
 | "PL1 cho mọi rule" | Token FP cao phải lên PL cao hoặc chain endpoint gate |
 | "Grep id:<id> trong .conf lấy idiom" | Kéo cả dòng regex ~12KB; idiom (scope/transform/severity/chain) ở index TSV 1 row, regex thật chỉ Read khi cần |
+| "scope_gate là virtual-patch-only nhưng cứ viết rule path+missing-header" | App-specific, không hợp ID range CRS, FP cao → ngoài generic CRS; HALT, để content team tự viết theo `rationale` |
+| "out-of-scope-structural nhưng vẫn ráng author cái gì đó" | Không content signature nào tồn tại → chỉ ra được `@rx` khít PoC = FP magnet; HALT là đúng |
 
 ---
 

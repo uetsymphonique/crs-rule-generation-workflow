@@ -2,7 +2,14 @@
 """parse_probe.py — project probe-engine output to the Stage-1 whitelist.
 
 Usage:
-    python .claude/skills/crs-retrieve-analyze/tools/parse_probe.py <raw-probe-output.json> <parsed-out.json>   (from repo root)
+    python .claude/skills/crs-retrieve-analyze/tools/parse_probe.py <raw-probe-output.json> <parsed-out.json> [--keep-raw]   (from repo root)
+
+The raw probe-engine output is pure staging: this script is its ONLY reader, and
+once the projected probe.json is written the raw transcript is dead weight (it is
+the largest, noisiest artifact in out/<id>/). So after probe.json is SAFELY
+written, parse_probe deletes the raw file. The delete is gated on a successful
+write — if anything fails earlier the raw bytes are still on disk to inspect — and
+`--keep-raw` retains it for debugging.
 
 Reads the raw probe-engine stdout JSON and keeps ONLY the match-time fields the
 crs-retrieve-analyze skill consumes (the field-consumption contract documented
@@ -46,6 +53,7 @@ Output schema (everything the skill reads, nothing else):
     }
 """
 import json
+import os
 import sys
 
 SCORE_KEYS = ("inbound", "threshold", "to_block", "score_pl1", "score_pl2")
@@ -88,10 +96,14 @@ def project_result(res):
 
 
 def main():
-    if len(sys.argv) != 3:
-        sys.exit("usage: parse_probe.py <raw-probe-output.json> <parsed-out.json>")
+    argv = sys.argv[1:]
+    keep_raw = "--keep-raw" in argv
+    pos = [a for a in argv if not a.startswith("--")]
+    if len(pos) != 2:
+        sys.exit("usage: parse_probe.py <raw-probe-output.json> <parsed-out.json> [--keep-raw]")
+    raw_path, out_path = pos
 
-    with open(sys.argv[1], encoding="utf-8") as f:
+    with open(raw_path, encoding="utf-8") as f:
         raw = json.load(f)
 
     results = raw["results"] if raw.get("results") is not None else [raw]
@@ -101,12 +113,23 @@ def main():
         "results": [project_result(r) for r in results],
     }
 
-    with open(sys.argv[2], "w", encoding="utf-8") as f:
+    with open(out_path, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2, ensure_ascii=False)
+
+    # staging cleanup: probe.json is written, so the raw transcript is now dead.
+    # delete it (gated on the successful write above). Never delete if it would
+    # clobber the output, and never crash the pipeline if removal fails.
+    cleaned = ""
+    if not keep_raw and os.path.abspath(raw_path) != os.path.abspath(out_path):
+        try:
+            os.remove(raw_path)
+            cleaned = f" (removed {raw_path})"
+        except OSError as e:
+            cleaned = f" (kept {raw_path}: {e})"
 
     n = len(out["results"])
     blocked = sum(1 for r in out["results"] if r.get("blocked"))
-    print(f"{sys.argv[2]} - status={out['status']} results={n} blocked={blocked}")
+    print(f"{out_path} - status={out['status']} results={n} blocked={blocked}{cleaned}")
 
 
 if __name__ == "__main__":

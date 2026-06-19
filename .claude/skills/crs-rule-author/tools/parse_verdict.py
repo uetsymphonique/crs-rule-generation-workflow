@@ -41,8 +41,14 @@ Output schema (everything the skill reads, nothing else):
       "target_file_hint": "<top candidate file>" | null,
       "candidate_rules": [ {id, file, line, operator, pl, why}, ... ],
       "already_covered_by": [ {id, msg, reason, operator, transforms, pattern_excerpt, matched_at, trigger_explanation} ] | null,
-      "recommendation_pl_coverage": "PL2" | null
+      "recommendation_pl_coverage": "PL2" | null,
+      "scope_gate": { "decision": "in-scope"|"virtual-patch-only"|"out-of-scope-structural", "rationale": "..." } | null
     }
+
+scope_gate is carried verbatim from the Stage-1 verdict (SCOPE-GATE trace, not-covered
+only). The skill's input-guard branches on `decision`: out-of-scope-structural and
+virtual-patch-only both HALT (rule-author only synthesizes generic CRS rules);
+in-scope (or null) proceeds. null on covered verdicts (gate not entered).
 """
 import json
 import sys
@@ -169,6 +175,7 @@ def main():
         "candidate_rules": candidates,
         "already_covered_by": build_already_covered_by(root_causes),
         "recommendation_pl_coverage": ((root_causes or {}).get("recommendation") or {}).get("pl_coverage"),
+        "scope_gate": v.get("scope_gate"),
     }
 
     with open(sys.argv[2], "w", encoding="utf-8") as f:
@@ -177,8 +184,9 @@ def main():
     n_cand = len(candidates)
     top = out["scope_signal"]["engine_confirmed_var"]
     top_var = top[0]["var"] if top else "none"
+    gate = (out["scope_gate"] or {}).get("decision", "—")
     print(f"{sys.argv[2]} — {out['coverage']}, candidates={n_cand}, scope={top_var}, "
-          f"target_file_hint={out['target_file_hint']}")
+          f"target_file_hint={out['target_file_hint']}, scope_gate={gate}")
 
 
 if __name__ == "__main__":

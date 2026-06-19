@@ -15,8 +15,12 @@ Steps:
   3. Write swapped rule to out/<id>/verify-candidate.conf (alongside artifacts;
      kept for debugging; overwritten on each verify run).
   4. Read extended-requests.json → paranoia + labeled request batch.
+     Fallback: if extended-requests.json is absent (variant lane off/skipped),
+     verify PoC-only against probe-input.json (always written by Stage 1 CRAFT).
   5. Probe: probe-engine --crs coreruleset --candidate-rule-file <conf>
+               --input verify-probe-input.json --output verify-probe-raw.json
      Batch mode: one compile, all requests in one pass.
+     Both temp files are deleted after the call.
   6. For each result: triggered = THROWAWAY_ID in matched_rules.
      When triggered: matched_value = first variables[].value (post-transform
      payload the engine matched on — engine's-eye view for rationale tracing).
@@ -32,7 +36,8 @@ Engine constraint (probe-engine README §Notes):
   (Tier-B deferred per proposal §6).
 
 Side-effects:
-  Writes out/<id>/verify-candidate.conf (swapped rule, temp; safe to delete).
+  Writes out/<id>/verify-candidate.conf (swapped rule, kept for debugging).
+  Writes/deletes out/<id>/verify-probe-input.json + verify-probe-raw.json (temp).
 """
 import glob
 import json
@@ -82,15 +87,30 @@ def swap_id(secrule_text, placeholder_id):
 
 
 def run_probe(engine_path, conf_path, requests, paranoia):
-    payload = json.dumps({"requests": requests, "paranoia": paranoia})
-    cmd = [engine_path, "--crs", "coreruleset", "--candidate-rule-file", conf_path]
-    result = subprocess.run(cmd, input=payload, capture_output=True, text=True)
-    if result.returncode != 0 and not result.stdout.strip():
-        sys.exit(f"probe-engine failed (exit {result.returncode}): {result.stderr[:400]}")
+    out_dir = os.path.dirname(conf_path)
+    input_path = os.path.join(out_dir, "verify-probe-input.json")
+    output_path = os.path.join(out_dir, "verify-probe-raw.json")
+
+    with open(input_path, "w", encoding="utf-8") as f:
+        json.dump({"requests": requests, "paranoia": paranoia}, f)
+
     try:
-        return json.loads(result.stdout)
-    except json.JSONDecodeError as e:
-        sys.exit(f"probe-engine output is not valid JSON: {e}\nstdout[:200]: {result.stdout[:200]}")
+        cmd = [engine_path, "--crs", "coreruleset", "--candidate-rule-file", conf_path,
+               "--input", input_path, "--output", output_path]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0 and not os.path.isfile(output_path):
+            sys.exit(f"probe-engine failed (exit {result.returncode}): {result.stderr[:400]}")
+        try:
+            with open(output_path, encoding="utf-8") as f:
+                return json.load(f)
+        except (OSError, json.JSONDecodeError) as e:
+            sys.exit(f"probe-engine output error: {e}")
+    finally:
+        for p in (input_path, output_path):
+            try:
+                os.remove(p)
+            except OSError:
+                pass
 
 
 def build_report(raw, labels, paranoia, placeholder_id):
@@ -132,13 +152,34 @@ def main():
     with open(new_path, encoding="utf-8") as f:
         new_data = json.load(f)
 
-    if not os.path.isfile(ext_path):
-        sys.exit(
-            f"{ext_path} not found — run crs-variant-gen first "
-            "(passthrough mode still produces this file with the PoC)"
-        )
-    with open(ext_path, encoding="utf-8") as f:
-        ext = json.load(f)
+    if os.path.isfile(ext_path):
+        with open(ext_path, encoding="utf-8") as f:
+            ext = json.load(f)
+    else:
+        # No variant output. The variant lane may be off entirely (gen-variants=off
+        # and the Stage-1 off-path writer skipped, or crs-variant-gen never ran).
+        # crs-rule-author must not be blocked by it: Stage 1 ALWAYS writes
+        # probe-input.json (deterministic CRAFT step, kept), so verify against the
+        # PoC alone. requests[0] is the exploit request (default exploit_index=0).
+        probe_input = os.path.join(os.path.dirname(os.path.abspath(ext_path)), "probe-input.json")
+        if not os.path.isfile(probe_input):
+            sys.exit(
+                f"{ext_path} not found and no {probe_input} fallback — run Stage 1 "
+                "(crs-retrieve-analyze) first; the PoC must come from somewhere"
+            )
+        with open(probe_input, encoding="utf-8") as f:
+            pin = json.load(f)
+        pin_reqs = pin.get("requests") or []
+        if not pin_reqs:
+            sys.exit(f"{ext_path} missing and {probe_input} has empty requests[] — rerun Stage 1")
+        ext = {
+            "paranoia": pin.get("paranoia") or 2,
+            "requests": [pin_reqs[0]],
+            "labels": ["poc"],
+            "meta": [{"label": "poc", "evades_rule": None,
+                      "rationale": "PoC from probe-input.json (no variant output)"}],
+        }
+        print(f"note: {ext_path} absent -> PoC-only fallback from {probe_input}", file=sys.stderr)
 
     rule = new_data.get("rule") or {}
     placeholder_id = rule.get("id")
