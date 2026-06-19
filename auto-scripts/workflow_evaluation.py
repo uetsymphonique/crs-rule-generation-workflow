@@ -120,10 +120,15 @@ for cve in cves:
     step_rows = []
     for step in sorted(STEP_ARTIFACT):
         rp = cdir / f"claude-step{step}.raw.json"
-        if rp.exists():
-            r = row_from_raw(cve, step, rp)
-            r["final_status"] = fstatus
-            step_rows.append(r)
+        if not rp.exists():
+            continue
+        # Drop gated Steps 2-3: pre mechanical-gate these were sent to the model
+        # which self-HALTed — degenerate runs, not real variant/rule generation.
+        if step in (2, 3) and fstatus == "gated":
+            continue
+        r = row_from_raw(cve, step, rp)
+        r["final_status"] = fstatus
+        step_rows.append(r)
 
     rows.extend(step_rows)
 
@@ -187,3 +192,23 @@ if args.csv != "-":
             avg = sum(vals) / n
             print(f"    {label:<13} avg={fmt.format(avg):>10}  "
                   f"min={fmt.format(min(vals)):>10}  max={fmt.format(max(vals)):>10}")
+
+    # Per-CVE averages (from TOTAL rows = full pipeline cost per CVE),
+    # overall and split by final_status.
+    total_rows = [r for r in rows if r.get("step") == "TOTAL"]
+
+    def cve_block(title, recs):
+        if not recs:
+            return
+        n = len(recs)
+        print(f"  {title} (n={n}):")
+        for label, key, fmt in metrics:
+            vals = [num(r.get(key)) for r in recs]
+            avg = sum(vals) / n
+            print(f"    {label:<13} avg={fmt.format(avg):>10}  "
+                  f"min={fmt.format(min(vals)):>10}  max={fmt.format(max(vals)):>10}")
+
+    print("\nper-CVE stats (full pipeline per CVE):")
+    cve_block("all", total_rows)
+    for label in ("covered", "in-scope", "gated"):
+        cve_block(label, [r for r in total_rows if r.get("final_status") == label])
