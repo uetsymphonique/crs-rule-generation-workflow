@@ -42,16 +42,28 @@ func main() {
 	crsPath := flag.String("crs", "coreruleset", "path to the CRS fork directory (contains crs-setup.conf.example and rules/)")
 	paranoia := flag.Int("paranoia", 1, "CRS paranoia level (1-4); overridden by the request JSON when it sets a non-zero paranoia")
 	candidateFile := flag.String("candidate-rule-file", "", "optional path to a file containing an extra SecRule to load (author parse-check)")
+	inputFile := flag.String("input", "", "path to a JSON input file (default: read from stdin)")
+	outputFile := flag.String("output", "", "path to write JSON output (default: write to stdout)")
 	check := flag.Bool("check", false, "build the WAF and report the loaded rule count, then exit (no request probing)")
 	flag.Parse()
 
-	if err := run(*crsPath, *paranoia, *candidateFile, *check); err != nil {
+	if err := run(*crsPath, *paranoia, *candidateFile, *inputFile, *outputFile, *check); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func run(crsPath string, paranoiaFlag int, candidateFile string, check bool) error {
+func run(crsPath string, paranoiaFlag int, candidateFile, inputFile, outputFile string, check bool) error {
+	out := io.Writer(os.Stdout)
+	if outputFile != "" {
+		f, err := os.Create(outputFile)
+		if err != nil {
+			return fmt.Errorf("creating output file: %w", err)
+		}
+		defer f.Close()
+		out = f
+	}
+
 	if check {
 		if paranoiaFlag < 1 || paranoiaFlag > 4 {
 			return fmt.Errorf("paranoia must be between 1 and 4, got %d", paranoiaFlag)
@@ -64,14 +76,23 @@ func run(crsPath string, paranoiaFlag int, candidateFile string, check bool) err
 		return nil
 	}
 
-	raw, err := io.ReadAll(os.Stdin)
-	if err != nil {
-		return fmt.Errorf("reading stdin: %w", err)
+	var raw []byte
+	var err error
+	if inputFile != "" {
+		raw, err = os.ReadFile(inputFile)
+		if err != nil {
+			return fmt.Errorf("reading input file: %w", err)
+		}
+	} else {
+		raw, err = io.ReadAll(os.Stdin)
+		if err != nil {
+			return fmt.Errorf("reading stdin: %w", err)
+		}
 	}
 
 	var input probeInput
 	if err := json.Unmarshal(raw, &input); err != nil {
-		return emit(errorOutput(fmt.Sprintf("invalid input JSON: %v", err)))
+		return emit(out, errorOutput(fmt.Sprintf("invalid input JSON: %v", err)))
 	}
 
 	paranoia := paranoiaFlag
@@ -80,14 +101,14 @@ func run(crsPath string, paranoiaFlag int, candidateFile string, check bool) err
 	}
 	// In sweep mode the PL is iterated (1-4), so the configured value is moot.
 	if !input.Sweep && (paranoia < 1 || paranoia > 4) {
-		return emit(errorOutput(fmt.Sprintf("paranoia must be between 1 and 4, got %d", paranoia)))
+		return emit(out, errorOutput(fmt.Sprintf("paranoia must be between 1 and 4, got %d", paranoia)))
 	}
 
 	candidateRule := input.CandidateRule
 	if candidateFile != "" {
 		b, err := os.ReadFile(candidateFile)
 		if err != nil {
-			return emit(errorOutput(fmt.Sprintf("reading candidate-rule-file: %v", err)))
+			return emit(out, errorOutput(fmt.Sprintf("reading candidate-rule-file: %v", err)))
 		}
 		candidateRule = string(b)
 	}
@@ -99,15 +120,15 @@ func run(crsPath string, paranoiaFlag int, candidateFile string, check bool) err
 		reqs = []probeRequest{*input.Request}
 	}
 	if len(reqs) == 0 {
-		return emit(errorOutput(`input must provide "request" or "requests"`))
+		return emit(out, errorOutput(`input must provide "request" or "requests"`))
 	}
 
 	// The single-request, non-sweep path keeps the original flat output
 	// contract. Anything else (batch list or sweep) emits a results array.
 	if !input.Sweep && len(input.Requests) == 0 {
-		return emit(probe(crsPath, paranoia, candidateRule, reqs[0]))
+		return emit(out, probe(crsPath, paranoia, candidateRule, reqs[0]))
 	}
-	return emitBatch(probeBatch(crsPath, paranoia, candidateRule, reqs, input.Sweep))
+	return emitBatch(out, probeBatch(crsPath, paranoia, candidateRule, reqs, input.Sweep))
 }
 
 // probe builds the WAF (optionally with a candidate rule) and runs the request
@@ -289,14 +310,14 @@ func errorOutput(msg string) probeOutput {
 	}
 }
 
-func emit(out probeOutput) error {
-	enc := json.NewEncoder(os.Stdout)
+func emit(w io.Writer, out probeOutput) error {
+	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	return enc.Encode(out)
 }
 
-func emitBatch(out batchOutput) error {
-	enc := json.NewEncoder(os.Stdout)
+func emitBatch(w io.Writer, out batchOutput) error {
+	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	return enc.Encode(out)
 }

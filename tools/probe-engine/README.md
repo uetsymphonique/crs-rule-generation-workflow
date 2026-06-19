@@ -21,8 +21,8 @@ go build -o probe-engine.exe .   # drop .exe on Linux/macOS
 
 ## Usage
 
-The tool reads JSON on stdin and writes JSON on stdout. There are three input
-shapes:
+The tool reads JSON from stdin (or a file) and writes JSON to stdout (or a
+file). There are three input shapes:
 
 | Shape | Input | Output | Compiles |
 |-------|-------|--------|----------|
@@ -35,13 +35,15 @@ probe-first flow (PoC + N bypass variants at one PL) costs a single compile.
 Sweep mode iterates PL1-4 so the caller reads the block decision per tier.
 
 ```bash
-# single
+# single (stdin → stdout)
 echo '{"request":{"method":"GET","uri":"/search?q=1%27%20OR%20%271%27=%271"}}' \
   | ./probe-engine --crs ./coreruleset --paranoia 1
 
+# single (file → file)
+./probe-engine --crs ./coreruleset --paranoia 1 --input request.json --output result.json
+
 # batch: PoC + bypass variants, one compile
-echo '{"requests":[{"method":"GET","uri":"/p?q=PoC"},{"method":"GET","uri":"/p?q=VARIANT"}]}' \
-  | ./probe-engine --crs ./coreruleset --paranoia 2
+./probe-engine --crs ./coreruleset --paranoia 2 --input batch.json
 
 # sweep: same request across PL1-4
 echo '{"request":{"method":"GET","uri":"/p?q=PAYLOAD"},"sweep":true}' \
@@ -54,10 +56,12 @@ echo '{"request":{"method":"GET","uri":"/p?q=PAYLOAD"},"sweep":true}' \
 |------|---------|---------|
 | `--crs` | `coreruleset` | Path to the CRS fork dir (must contain `crs-setup.conf.example` and `rules/`). Point at a patched copy for differential before/after probing. |
 | `--paranoia` | `1` | CRS paranoia level (1-4). Overridden by `paranoia` in the request JSON when non-zero. |
+| `--input` | _stdin_ | Path to a JSON input file. When omitted, JSON is read from stdin. |
+| `--output` | _stdout_ | Path to write the JSON result. When omitted, JSON is written to stdout. Errors from `--check` always go to stdout regardless of this flag. |
 | `--candidate-rule-file` | _none_ | Path to a file holding one extra `SecRule`/`SecAction` to load on top of CRS (author parse-check). Overrides `candidate_rule` in the JSON. |
-| `--check` | `false` | Build the WAF, print the loaded rule count, and exit. No request probing. |
+| `--check` | `false` | Build the WAF, print the loaded rule count to stdout, and exit. No request probing. |
 
-## Input contract (stdin JSON)
+## Input contract (stdin / file JSON)
 
 ```json
 {
@@ -89,7 +93,7 @@ echo '{"request":{"method":"GET","uri":"/p?q=PAYLOAD"},"sweep":true}' \
 - `body` is fed only when the engine has request-body access (it does by
   default). Set `Content-Type` to engage the JSON/XML body processors.
 
-## Output contract (stdout JSON)
+## Output contract (stdout / file JSON)
 
 Single mode returns one flat result:
 
@@ -201,6 +205,9 @@ the `matched_rules` / `blocked` / `anomaly_score` of each result.
 REQ='{"request":{"method":"GET","uri":"/p?q=PAYLOAD"}}'
 echo "$REQ" | ./probe-engine --crs ./coreruleset          > before.json
 echo "$REQ" | ./probe-engine --crs ./coreruleset-patched  > after.json
+# or with --input / --output flags:
+./probe-engine --crs ./coreruleset         --input req.json --output before.json
+./probe-engine --crs ./coreruleset-patched --input req.json --output after.json
 ```
 
 ## Notes for skill integration
