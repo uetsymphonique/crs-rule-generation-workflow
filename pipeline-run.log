@@ -1,0 +1,69 @@
+[08:53:31] === pipeline start: 3 template(s), model=claude-sonnet-4-6, gen-variants=root-cause-only, max-budget=$5.50/step, max-turns=50 ===
+[08:53:31] --- [CVE-2026-0545] nuclei-templates\http\cves\2026\CVE-2026-0545.yaml
+[08:53:31]   Step 1: crs-retrieve-analyze --gen-variants=off
+[08:57:50]     [tokens] in=32 out=12483 cache_read=1184292 cache_write=66970 cost=$0.9444 | turns=29 dur=257.7s stop=end_turn term=completed
+[08:57:50]     [result] `out/CVE-2026-0545/verdict.json â€” not-covered`
+[08:57:50]   Step 2: crs-variant-gen --gen-variants=root-cause-only
+[08:58:23]     [tokens] in=16 out=1240 cache_read=243948 cache_write=17397 cost=$0.1962 | turns=10 dur=32.0s stop=end_turn term=completed
+[08:58:23]     [result] `out/CVE-2026-0545 â€” variant-gen skipped: virtual-patch-only (no content signature to mutate)`
+[08:58:23]   Step 3: crs-rule-author
+[08:58:48]     [tokens] in=8 out=770 cache_read=106505 cache_write=15001 cost=$0.1335 | turns=5 dur=23.4s stop=end_turn term=completed
+[08:58:48]     [result] `out/CVE-2026-0545 â€” no rule synthesizable: virtual-patch-only (needs deployment-specific path+missing-header rule, outside generic CRS scope â€” author manually per scope_gate.rationale)`
+
+**Rationale:** The exploit body (`{"job_name":"run_task","params":{"command":"id"}}`) is a valid JSON API call with no injection metacharacter or known-bad string. The vulnerability is the *absence* of an `Authorization` header on a specific MLflow endpoint (`POST /ajax-api/3.0/jobs/*`). A WAF cannot generically know which paths require authentication without application-specific configuration. A virtual patch is expressible but requires a deployment-specific rule keyed on `REQUEST_FILENAME` + missing `Authorization` header â€” not a CRS upstream contribution.
+[08:58:48]   WARN: new.json missing after Step 3
+[08:58:48] --- [CVE-2026-0740] nuclei-templates\http\cves\2026\CVE-2026-0740.yaml
+[08:58:48]   Step 1: crs-retrieve-analyze --gen-variants=off
+[09:03:42]     [tokens] in=26 out=12332 cache_read=872791 cache_write=43640 cost=$0.7631 | turns=26 dur=292.1s stop=end_turn term=completed
+[09:03:42]     [result] `out/CVE-2026-0740/verdict.json â€” not-covered`
+[09:03:42]   Step 2: crs-variant-gen --gen-variants=root-cause-only
+[09:07:59]     [tokens] in=28 out=13182 cache_read=825714 cache_write=41587 cost=$0.6951 | turns=27 dur=255.6s stop=end_turn term=completed
+[09:07:59]     [result] `out/CVE-2026-0740/extended-requests.json â€” class-only: 6 variant(s)`
+[09:07:59]   Step 3: crs-rule-author
+[09:16:26]     [tokens] in=76 out=23738 cache_read=1577675 cache_write=57601 cost=$1.1752 | turns=39 dur=506.1s stop=end_turn term=completed
+[09:16:26]     [result] `out/CVE-2026-0740/new.json â€” new rule: 933XXX @ REQUEST-933-APPLICATION-ATTACK-PHP.conf`
+[09:16:26]   done -> out\CVE-2026-0740\new.json
+[09:16:26] --- [CVE-2026-41940] nuclei-templates\http\cves\2026\CVE-2026-41940.yaml
+[09:16:26]   Step 1: crs-retrieve-analyze --gen-variants=off
+[09:21:51]     [tokens] in=27 out=18041 cache_read=924504 cache_write=44500 cost=$0.8150 | turns=23 dur=323.6s stop=end_turn term=completed
+[09:21:51]     [result] `out/CVE-2026-41940/verdict.json â€” not-covered`
+[09:21:51]   Step 2: crs-variant-gen --gen-variants=root-cause-only
+[09:22:52]     [tokens] in=23 out=1958 cache_read=496224 cache_write=19066 cost=$0.2927 | turns=17 dur=59.3s stop=end_turn term=completed
+[09:22:52]     [result] `out/CVE-2026-41940 â€” variant-gen skipped: virtual-patch-only (no content signature to mutate)`
+[09:22:52]   Step 3: crs-rule-author
+[09:23:44]     [tokens] in=18 out=1908 cache_read=315755 cache_write=19078 cost=$0.2379 | turns=18 dur=50.8s stop=end_turn term=completed
+[09:23:44]     [result] `out/CVE-2026-41940 â€” no rule synthesizable: virtual-patch-only (needs deployment-specific path+missing-header rule, outside generic CRS scope â€” author manually per scope_gate.rationale)`
+[09:23:44]   WARN: new.json missing after Step 3
+[09:23:44] === pipeline end: ok=1 covered=0 warn=2 | tokens in=254 out=85652 cache_read=6547408 cache_write=324840 total_cost=$5.2532 ===
+[09:28:32] === pipeline start (SESSION-SHARED): 3 template(s), model=claude-sonnet-4-6, gen-variants=root-cause-only, max-budget=$5.5/step, max-turns=50 ===
+[09:28:32] --- [CVE-2026-0545] nuclei-templates\http\cves\2026\CVE-2026-0545.yaml  (session 2a82f7f8)
+[09:28:32]   Step 1: crs-retrieve-analyze --gen-variants=off
+[09:28:32]     [session] open 2a82f7f8
+[09:31:49]     [tokens] in=26 out=9713 cache_read=787880 cache_write=35119 cost=$0.5929 | turns=26 dur=196.2s stop=end_turn term=completed
+[09:31:49]     [result] `out/CVE-2026-0545/verdict.json G�� not-covered`
+[09:31:49]   Step 2: crs-variant-gen --gen-variants=root-cause-only
+[09:31:49]     [session] resume 2a82f7f8
+[09:32:20]     [tokens] in=11 out=1090 cache_read=382042 cache_write=44835 cost=$0.4000 | turns=9 dur=28.7s stop=end_turn term=completed
+[09:32:20]     [result] `out/CVE-2026-0545 G�� variant-gen skipped: virtual-patch-only (no content signature to mutate)`
+[09:32:20]   Step 3: crs-rule-author
+[09:32:20]     [session] resume 2a82f7f8
+[09:32:58]     [tokens] in=11 out=887 cache_read=475284 cache_write=19351 cost=$0.2720 | turns=8 dur=36.0s stop=end_turn term=completed
+[09:32:58]     [result] `out/CVE-2026-0545 G�� no rule synthesizable: virtual-patch-only (needs deployment-specific path+missing-header rule, outside generic CRS scope G�� author manually per scope_gate.rationale)`
+[09:32:58]   WARN: new.json missing after Step 3
+[09:32:58] --- [CVE-2026-0740] nuclei-templates\http\cves\2026\CVE-2026-0740.yaml  (session 39924a28)
+[09:32:58]   Step 1: crs-retrieve-analyze --gen-variants=off
+[09:32:58]     [session] open 39924a28
+[09:39:03]     [tokens] in=67 out=18494 cache_read=1194770 cache_write=55808 cost=$0.9709 | turns=28 dur=364.4s stop=stop_sequence term=completed
+[09:39:03]     [result] You've hit your session limit -+ resets 1:40pm (Asia/Hovd)
+[09:39:03]     [ERROR] is_error=true api_error_status=429
+[09:39:03]   WARN: claude exited 1 at Step 1
+[09:39:03]   WARN: verdict.json missing - skipping CVE-2026-0740
+[09:39:03] --- [CVE-2026-41940] nuclei-templates\http\cves\2026\CVE-2026-41940.yaml  (session bad3a96f)
+[09:39:03]   Step 1: crs-retrieve-analyze --gen-variants=off
+[09:39:03]     [session] open bad3a96f
+[09:39:05]     [tokens] in=0 out=0 cache_read=0 cache_write=0 cost=$0.0000 | turns=1 dur=0.7s stop=stop_sequence term=completed
+[09:39:05]     [result] You've hit your session limit -+ resets 1:40pm (Asia/Hovd)
+[09:39:05]     [ERROR] is_error=true api_error_status=429
+[09:39:05]   WARN: claude exited 1 at Step 1
+[09:39:05]   WARN: verdict.json missing - skipping CVE-2026-41940
+[09:39:05] === pipeline end (SESSION-SHARED): ok=0 covered=0 warn=3 | tokens in=115 out=30184 cache_read=2839976 cache_write=155113 total_cost=$2.2358 ===

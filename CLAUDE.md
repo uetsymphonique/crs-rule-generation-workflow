@@ -61,33 +61,32 @@ Full detail: `workflow.md`
 ```
 Nuclei template
       ↓
-  Classify → grep coreruleset/rules/ → Few-shot CRS rules
+  Probe Engine (Coraza + CRS, PL2) — engine-as-oracle
       ↓
-  Static Analysis (LLM)
-  "Does CRS already cover this vulnerability?"
+  Adjudicate root-cause
+  "root-cause rule fired?"
       ↓ yes                        ↓ no
-  Reason (terminal)          Rule Designer (LLM + RAG)
-  Audit note only            comibined-docs/ as context
+  covered (terminal)          SCOPE-GATE → RETRIEVE
+  recommendation in           candidate_rules for
+  verdict.json                Rule Designer
+                                   ↓ (scope_gate=in-scope)
+                              crs-variant-gen (Lane 2)
+                              extended-requests.json
                                    ↓
-                         Has related rules?
-                          ↓ yes          ↓ no
-                       Action A        (skip A)
-                    fix existing
-                       rule(s)
-                          ↓
-                       Action B (always)
-                    new rule recommendation
-                          ↓
-                    Recommendations
+                              crs-rule-author (Lane 3)
+                              new rule recommendation
+                                   ↓
+                              verify_rule.py (Lane 4)
+                                   ↓
+                              out/<id>/new.json
 ```
 
-**Two LLM stages, distinct roles:**
-- **Static Analysis** — judgment call: is the template already covered? outputs boolean + short reasoning
-- **Rule Designer** — generation: designs detection logic using Few-shot rules + RAG from `comibined-docs/`
+**Two stages, distinct roles:**
+- **Stage 1 (crs-retrieve-analyze)** — engine-as-oracle: probe PL2, adjudicate root-cause, classify scope, build candidate_rules handoff
+- **Stage 2 (crs-variant-gen + crs-rule-author)** — generation: craft variants, synthesize new SecRule with RAG from `comibined-docs/`, verify with engine
 
-**Two output types:**
-- `fix` (Action A) — modify an existing rule; includes rule ID + fields to change
-- `new` (Action B) — new SecRule skeleton with full CRS metadata
+**One output type:**
+- `new` — new SecRule recommendation; greenfield (not-covered) or complementary (covered + force-candidates)
 
 ---
 

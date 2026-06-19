@@ -1,7 +1,6 @@
 ---
 name: crs-variant-gen
 description: Stage 2 (Lane 2) của pipeline CRS rule-generation. Sinh một nhúm request biến thể CÙNG attack-class với PoC để New-rule Generator (crs-rule-author) thiết kế rule có breadth ngay từ vòng đầu và Lane-4 Verify có đủ request để engine chấm. Đọc variant-handoff.json + probe.json, chọn target theo --gen-variants (class-only = default, craft từ family/template không neo rule / root-cause-only = neo root_cause_rules / all-triggered-rules = neo matched_rules; KHÔNG dùng candidate_rules). root-cause-only & all-triggered-rules auto fallback class-only khi thiếu field (no root cause / nothing fired). Clone shape probe-input, craft regex-aware. KHÔNG probe, KHÔNG đọc rule candidate mới, KHÔNG author rule. Write-only → out/<id>/extended-requests.json.
-model: claude-sonnet-4-6
 effort: medium
 allowed-tools:
   - Read

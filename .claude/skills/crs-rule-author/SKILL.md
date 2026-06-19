@@ -1,7 +1,6 @@
 ---
 name: crs-rule-author
 description: Stage 3 primary của pipeline CRS rule-generation. Nhận verdict (not-covered hoặc covered+force-candidates) + Nuclei template + extended-requests (PoC + biến thể từ crs-variant-gen Stage 2), synthesize MỘT CRS SecRule mới từ zero với RAG từ comibined-docs. Thiết kế variable scope, operator, transform pipeline, phase, anomaly scoring; chọn rule ID không conflict; bắt attack class bao phủ cả PoC lẫn extended variants. HALT nếu scope_gate ∈ {out-of-scope-structural, virtual-patch-only} hoặc covered+candidate_rules rỗng. Verify bằng engine (verify_rule.py) trước khi emit — max 3 vòng. Write-only → out/<id>/new.json. KHÔNG commit vào coreruleset.
-model: claude-sonnet-4-6
 effort: medium
 allowed-tools:
   - Read

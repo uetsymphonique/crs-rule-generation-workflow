@@ -1,7 +1,6 @@
 ---
 name: crs-retrieve-analyze
 description: Stage 1 của pipeline CRS rule-generation (purple-team oriented). Coverage analysis cho MỘT Nuclei template (.yaml) đối chiếu OWASP CRS bằng engine-as-oracle (probe-engine/Coraza). Dựng request thật từ template, probe PoC tại PL2, đọc matched_rules + anomaly-score, và adjudicate theo tiêu chí ROOT-CAUSE — có ≥1 rule bắt đúng root cause (attack-class tag khớp + bắt đúng exploit, xét tình huống thực) → covered (recommend rule sẵn có); ngược lại → not-covered + dựng candidate_rules (fired-off-root-cause + related rules cùng class, rank theo độ liên quan) cho Rule Designer. covered/not-covered suy từ length root_cause_rules, không có field verdict. Sinh request biến thể cho Stage 2 qua arg gen-variants (default class-only → spawn bg Agent crs-variant-gen; off → tự write PoC-only extended-requests.json) — spawn CHỈ phụ thuộc gen-variants, độc lập coverage/force-candidates. KHÔNG author hay modify rule.
-model: claude-sonnet-4-6
 effort: medium
 allowed-tools:
   - Read
