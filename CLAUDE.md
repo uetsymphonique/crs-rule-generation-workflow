@@ -43,7 +43,7 @@ crs-rule-generation-workflow/
 
 ### SecRule generation rules
 - CRS detection rules use `block` + `setvar:tx.anomaly_score_pl%{TX:DETECTION_PARANOIA_LEVEL}=+%{tx.critical_anomaly_score}` — **never `deny`** in detection rules
-- Required metadata per rule: `id`, `phase`, `msg`, `tag`, `ver`, `severity`, `maturity`, `accuracy`
+- Required metadata per rule (Tier 1): `id`, `phase`, `block`, `severity`, anomaly `setvar`, `tag:'paranoia-level/N'` (PL>1); (Tier 2): `msg`, `logdata` — `ver`/`maturity`/`accuracy` are Tier 3, skip unless release-ready
 - Rule IDs: check `coreruleset/rules/` to avoid conflicts; CRS uses ranges (9xxxxx)
 - Transformations are mandatory for string matching to prevent bypass (e.g., `t:lowercase,t:urlDecodeUni`)
 - See `comibined-docs/modsec-docs/metadata/required-metadata.md` for the full required fields spec
@@ -58,35 +58,23 @@ crs-rule-generation-workflow/
 
 Full detail: `workflow.md`
 
-```
-Nuclei template
-      ↓
-  Probe Engine (Coraza + CRS, PL2) — engine-as-oracle
-      ↓
-  Adjudicate root-cause
-  "root-cause rule fired?"
-      ↓ yes                        ↓ no
-  covered (terminal)          SCOPE-GATE → RETRIEVE
-  recommendation in           candidate_rules for
-  verdict.json                Rule Designer
-                                   ↓ (scope_gate=in-scope)
-                              crs-variant-gen (Lane 2)
-                              extended-requests.json
-                                   ↓
-                              crs-rule-author (Lane 3)
-                              new rule recommendation
-                                   ↓
-                              verify_rule.py (Lane 4)
-                                   ↓
-                              out/<id>/new.json
-```
+| Stage | Step | Condition | Output |
+|-------|------|-----------|--------|
+| **S1** crs-retrieve-analyze | CRAFT | — | `probe-input.json` |
+| **S1** | PROBE (PL2, engine-as-oracle) | — | `probe.json` |
+| **S1** | Adjudicate root-cause | ≥1 root-cause rule → **covered** | → INSPECT-ROOT-CAUSE |
+| **S1** | Adjudicate root-cause | 0 root-cause rule → **not-covered** | → SCOPE-GATE |
+| **S1** | INSPECT-ROOT-CAUSE | covered only | `rule_analysis[]` → recommendation |
+| **S1** | SCOPE-GATE (G0–G4) | not-covered only | `scope_gate.decision` |
+| **S1** | VARIANT-HANDOFF | always (both branches) | `variant-handoff.json` |
+| **S1** | GEN-VARIANTS | `gen-variants≠off` **and** `scope_gate=in-scope` | spawn S2 bg agent |
+| **S1** | RETRIEVE | not-covered **or** covered+force-candidates | `candidate_rules[]` |
+| **S1** | EMIT | — | `verdict.json` |
+| **S2** crs-variant-gen | craft attack-class variants | bg agent; runs parallel with S1 RETRIEVE→EMIT | `extended-requests.json` |
+| **S3** crs-rule-author | DESIGN → SYNTHESIZE | not-covered or covered+force-candidates | SecRule candidate |
+| **S3** | VERIFY (engine gate, max 5 iter) | all triggered → EMIT · any miss + iter<5 → DESIGN · iter=5 → EMIT residual | `new.json` |
 
-**Two stages, distinct roles:**
-- **Stage 1 (crs-retrieve-analyze)** — engine-as-oracle: probe PL2, adjudicate root-cause, classify scope, build candidate_rules handoff
-- **Stage 2 (crs-variant-gen + crs-rule-author)** — generation: craft variants, synthesize new SecRule with RAG from `comibined-docs/`, verify with engine
-
-**One output type:**
-- `new` — new SecRule recommendation; greenfield (not-covered) or complementary (covered + force-candidates)
+**One output type:** `new` — greenfield (not-covered) or complementary (covered + force-candidates)
 
 ---
 

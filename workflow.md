@@ -57,8 +57,8 @@ flowchart LR
 
         NRG --> NRULES --> PE2 --> VGATE
         VGATE -- yes --> NEWSUMM
-        VGATE -- "no  (iter < 3)" --> NRG
-        VGATE -- "no  (iter = 3)" --> NEWSUMM
+        VGATE -- "no  (iter < 5)" --> NRG
+        VGATE -- "no  (iter = 5)" --> NEWSUMM
     end
 
     S1 -. "spawn bg\n(GEN-VARIANTS)" .-> GVD
@@ -195,8 +195,8 @@ Thiết kế: variable scope (ưu tiên `engine_confirmed_var` từ probe), oper
 
 Engine chấm rule candidate trên `extended-requests.json`. Gate:
 - `parse_ok: false` → loop về SYNTHESIZE (fix syntax; iter không tăng).
-- `triggered: false` & iter < 3 → loop về DESIGN (tăng iter).
-- `triggered: false` & iter = 3 → EMIT với residual gap (confidence hạ).
+- `triggered: false` & iter < 5 → loop về DESIGN (tăng iter).
+- `triggered: false` & iter = 5 → EMIT với residual gap (confidence hạ).
 - Mọi `triggered: true` → EMIT (pass).
 
 > Engine constraint: `--candidate-rule-file` load sau rule 949 → trigger xác nhận được, anomaly scoring KHÔNG được 949 đếm trong cùng run. VERIFY chỉ xác nhận **trigger/fire**, không xác nhận scoring/block.
