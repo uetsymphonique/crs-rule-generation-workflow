@@ -19,3 +19,6 @@
 [submodule "PayloadsAllTheThings"]
 	path = PayloadsAllTheThings
 	url = https://github.com/swisskyrepo/PayloadsAllTheThings
+[submodule "waf-content-benchmark"]
+	path = waf-content-benchmark
+	url = https://github.com/uetsymphonique/waf-content-benchmark
