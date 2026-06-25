@@ -22,6 +22,37 @@ import re
 import sys
 from pathlib import Path
 
+# CSV column name -> row token field
+_PRICING_COL_MAP = {
+    "1M_input_tokens":      "input_tokens",
+    "1M_output_tokens":     "output_tokens",
+    "1M_cache_read_tokens": "cache_read_tokens",
+    "1M_cache_write_tokens": "cache_write_tokens",
+}
+
+
+def load_pricing(path: str) -> dict:
+    """Return {token_field: rate_per_1M_usd} from a pricing CSV."""
+    p = Path(path)
+    with p.open(newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        row = next(reader)
+    result = {}
+    for col, field in _PRICING_COL_MAP.items():
+        if col in row:
+            result[field] = float(row[col])
+    if not result:
+        raise ValueError(f"pricing CSV {path!r} has no recognised columns: {list(row)}")
+    return result
+
+
+def apply_pricing(row: dict, pricing: dict) -> dict:
+    """Overwrite row['cost_usd'] using custom per-token rates."""
+    cost = sum(num(row.get(field, 0)) * rate / 1_000_000
+               for field, rate in pricing.items())
+    row["cost_usd"] = round(cost, 4)
+    return row
+
 STEP_ARTIFACT = {1: "verdict.json", 2: "extended-requests.json", 3: "new.json"}
 STEP_SKILL = {1: "crs-retrieve-analyze", 2: "crs-variant-gen", 3: "crs-rule-author"}
 
@@ -57,7 +88,18 @@ def final_status(cve_dir: Path) -> str:
 parser = argparse.ArgumentParser(description="Per-CVE/per-step run metrics to CSV")
 parser.add_argument("--out-dir", default="out", help="Directory holding <id>/claude-stepN.raw.json (default: out)")
 parser.add_argument("--csv", default="workflow-evaluation.csv", help="Output CSV path, or '-' for stdout")
+parser.add_argument("--pricing", metavar="CSV", default=None,
+                    help="Custom pricing CSV (columns: 1M_input_tokens, 1M_output_tokens, "
+                         "1M_cache_read_tokens[, 1M_cache_write_tokens]). "
+                         "Overrides cost_usd from raw JSON.")
 args = parser.parse_args()
+
+pricing: dict | None = None
+if args.pricing:
+    pricing = load_pricing(args.pricing)
+    if args.csv != "-":
+        cols = ", ".join(f"{f}={r}" for f, r in pricing.items())
+        print(f"[pricing override] {args.pricing}: {cols}")
 
 out_dir = Path(args.out_dir)
 
@@ -128,6 +170,8 @@ for cve in cves:
             continue
         r = row_from_raw(cve, step, rp)
         r["final_status"] = fstatus
+        if pricing:
+            apply_pricing(r, pricing)
         step_rows.append(r)
 
     rows.extend(step_rows)
@@ -159,7 +203,8 @@ else:
 
 # Console summary (not written to CSV).
 if args.csv != "-":
-    print(f"wrote {len(rows)} rows ({len(cves)} CVEs) -> {args.csv}")
+    pricing_note = f" [pricing: {args.pricing}]" if pricing else ""
+    print(f"wrote {len(rows)} rows ({len(cves)} CVEs) -> {args.csv}{pricing_note}")
     print(f"grand total: turns={grand['num_turns']} "
           f"in={grand['input_tokens']} out={grand['output_tokens']} "
           f"cache_read={grand['cache_read_tokens']} cache_write={grand['cache_write_tokens']} "
